@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Second_hand_EV_Battery_Trading_Platform", "Second_hand_EV_Battery_Trading_Platform\Second_hand_EV_Battery_Trading_Platform.csproj", "{0E6D0A7A-E7E4-4A62-AC19-0669981961BB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E6D0A7A-E7E4-4A62-AC19-0669981961BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E6D0A7A-E7E4-4A62-AC19-0669981961BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E6D0A7A-E7E4-4A62-AC19-0669981961BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E6D0A7A-E7E4-4A62-AC19-0669981961BB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {843022E7-A32F-491F-A8B9-5B00D28D99DC}
+	EndGlobalSection
+EndGlobal

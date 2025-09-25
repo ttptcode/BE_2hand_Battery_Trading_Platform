@@ -1,0 +1,6 @@
+@Second_hand_EV_Battery_Trading_Platform_HostAddress = http://localhost:5046
+
+GET {{Second_hand_EV_Battery_Trading_Platform_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -24,4 +24,29 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users.AnyAsync(u => u.UserId == id);
     }
+
+    public async Task<User?> GetByFullNameAsync(string fullName)
+    {
+        return await _context.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.FullName == fullName);
+    }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Email == email);
+    }
+
+    public async Task AddAsync(User user)
+    {
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> ExistsByEmailOrFullNameAsync(string email, string fullName)
+    {
+        return await _context.Users.AnyAsync(u => u.Email == email || u.FullName == fullName);
+    }
 }

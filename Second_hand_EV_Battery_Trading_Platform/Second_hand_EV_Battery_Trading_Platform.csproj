@@ -20,9 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="src\Application\Controller\" />
-    <Folder Include="src\Application\DTOs\" />
-    <Folder Include="src\Application\Serivces\" />
     <Folder Include="src\Infrastructure\Repository\" />
   </ItemGroup>
 

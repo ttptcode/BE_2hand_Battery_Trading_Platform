@@ -6,4 +6,5 @@ public interface IUserRepository
 {
     Task<User?> GetByIdAsync(Guid id);
     Task<bool> ExistsAsync(Guid id);
+    Task<User> UpdateAsync(User user);
 }

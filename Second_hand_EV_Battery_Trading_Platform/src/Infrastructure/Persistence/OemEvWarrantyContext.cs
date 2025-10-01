@@ -187,6 +187,7 @@ public partial class OemEvWarrantyContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.StartPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.BidIncrement).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -203,6 +204,7 @@ public partial class OemEvWarrantyContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Listings)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Listing__UserId__6D0D32F4");
+
         });
 
         modelBuilder.Entity<Message>(entity =>
@@ -299,6 +301,7 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+            entity.Property(e => e.Balance).HasPrecision(18, 2);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)

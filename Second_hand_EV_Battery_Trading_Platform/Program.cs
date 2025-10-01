@@ -1,4 +1,4 @@
-using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Extensions;
+﻿using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

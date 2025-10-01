@@ -16,9 +16,12 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Extensions
             // Add Repositories
             services.AddScoped<IItemRepository, ItemRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IBidRepository, BidRepository>();
+            services.AddScoped<IListingRepository, ListingRepository>();
 
             // Add Services
             services.AddScoped<IItemService, ItemService>();
+            services.AddScoped<IBiddingService, BiddingService>();
 
             return services;
         }

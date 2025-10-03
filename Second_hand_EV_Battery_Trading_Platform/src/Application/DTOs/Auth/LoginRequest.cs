@@ -2,9 +2,9 @@
 {
     public class LoginRequest
     {
-       // map vào FullName trong DB
-       
-        public string Username { get; set; } = string.Empty; 
+        // map vào FullName trong DB
+
+        public string PhoneNumber { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
     }
 }

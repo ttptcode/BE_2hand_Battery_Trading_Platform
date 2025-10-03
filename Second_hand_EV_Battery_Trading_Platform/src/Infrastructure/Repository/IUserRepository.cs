@@ -6,9 +6,10 @@ public interface IUserRepository
 {
     Task<User?> GetByIdAsync(Guid id);
     Task<bool> ExistsAsync(Guid id);
-    Task<User?> GetByFullNameAsync(string fullName);
+   
     Task<User?> GetByEmailAsync(string email);
+    Task<User?> GetByPhoneAsync(string phone); // ?? thêm dòng này
     Task AddAsync(User user);
-    Task<bool> ExistsByEmailOrFullNameAsync(string email, string fullName);
+    Task<bool> ExistsByPhoneOrFullNameAsync(string phone, string fullName);
 
 }

@@ -25,13 +25,12 @@ public class UserRepository : IUserRepository
         return await _context.Users.AnyAsync(u => u.UserId == id);
     }
 
-    public async Task<User?> GetByFullNameAsync(string fullName)
+    public async Task<User?> GetByPhoneAsync(string phone)
     {
         return await _context.Users
-            .Include(u => u.Role)
-            .FirstOrDefaultAsync(u => u.FullName == fullName);
+            .Include(u => u.Role) // n?u c?n role
+            .FirstOrDefaultAsync(u => u.Phone == phone);
     }
-
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _context.Users
@@ -45,8 +44,8 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> ExistsByEmailOrFullNameAsync(string email, string fullName)
+    public async Task<bool> ExistsByPhoneOrFullNameAsync(string phone, string fullName)
     {
-        return await _context.Users.AnyAsync(u => u.Email == email || u.FullName == fullName);
+        return await _context.Users.AnyAsync(u => u.Phone == phone || u.FullName == fullName);
     }
 }

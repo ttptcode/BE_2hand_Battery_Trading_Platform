@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs.Auth;
 using Second_hand_EV_Battery_Trading_Platform.src.Domain;
+using Second_hand_EV_Battery_Trading_Platform.src.Helpers;
 using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository;
 
 namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces
@@ -22,16 +23,16 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces
         // Đăng ký
         public async Task<User?> RegisterAsync(RegisterRequest request)
         {
-            bool exists = await _userRepository.ExistsByEmailOrFullNameAsync(request.Email, request.Username);
+            // Check trùng bằng Phone hoặc FullName
+            bool exists = await _userRepository.ExistsByPhoneOrFullNameAsync(request.PhoneNumber, request.FullName);
             if (exists) return null;
 
-            var hashedPassword = HashPassword(request.Password);
+            var hashedPassword = PasswordHelper.HashPassword(request.Password);
 
             var user = new User
             {
                 UserId = Guid.NewGuid(),
-                FullName = request.Username,  // map FE.username vào FullName trong DB
-                Email = request.Email,
+                FullName = request.FullName,  // map FE.fullName vào FullName
                 Phone = request.PhoneNumber,
                 PasswordHash = hashedPassword,
                 CreatedAt = DateTime.UtcNow,
@@ -46,12 +47,15 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces
         // Đăng nhập
         public async Task<User?> LoginAsync(LoginRequest request)
         {
-            var user = await _userRepository.GetByFullNameAsync(request.Username)
-                       ?? await _userRepository.GetByEmailAsync(request.Username);
+            // Tìm user theo số điện thoại
+            var user = await _userRepository.GetByPhoneAsync(request.PhoneNumber);
 
             if (user == null) return null;
 
-            if (!VerifyPassword(request.Password, user.PasswordHash!)) return null;
+            // Hash lại mật khẩu nhập vào để so sánh với trong DB
+            var hashedInput = PasswordHelper.HashPassword(request.Password);
+
+            if (user.PasswordHash != hashedInput) return null;
 
             return user;
         }

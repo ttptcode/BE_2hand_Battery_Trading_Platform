@@ -22,43 +22,87 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
             _userRepository = userRepository;
             _logger = logger;
         }
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        [HttpPost("login")]
+        public async Task<ActionResult<ApiResponse<object>>> Login([FromBody] LoginDto dto)
         {
             try
             {
-                // Kiểm tra trùng lặp (Email hoặc FullName đã tồn tại)
-                var exists = await _userRepository.ExistsByEmailOrFullNameAsync(dto.Email, dto.FullName);
-                if (exists)
+                var user = await _userRepository.GetByPhoneAsync(dto.PhoneNumber);
+
+                if (user == null)
                 {
-                    return BadRequest(new { message = "IDENTITY HAD ALREADY EXISTED" });
+                    return Unauthorized(ApiResponse<object>.ErrorResult("User not found"));
                 }
 
-                var user = new User
+                var hashedInput = PasswordHelper.HashPassword(dto.Password);
+
+                if (user.PasswordHash != hashedInput)
                 {
-                    UserId = Guid.NewGuid(),
-                    FullName = dto.FullName,
-                    Email = dto.Email,
-                    Phone = dto.PhoneNumber,
-                    PasswordHash = PasswordHelper.HashPassword(dto.Password), // dùng SHA256 helper
-                    CreatedAt = DateTime.UtcNow,
-                    Status = "Active"
-                };
+                    return Unauthorized(ApiResponse<object>.ErrorResult("Invalid password"));
+                }
 
-                await _userRepository.AddAsync(user);
-
-                // FE đang check response.token => trả dummy token
-                return Ok(new
+                var data = new
                 {
                     token = "dummy-jwt-token",
-                    message = "Register success"
-                });
+                    userId = user.UserId,
+                    fullName = user.FullName,
+                    phone = user.Phone
+                };
+
+                return Ok(ApiResponse<object>.SuccessResult(data, "Login success"));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Register error");
-                return StatusCode(500, new { message = "Internal server error" });
+                _logger.LogError(ex, "Error occurred while login");
+                return StatusCode(500, ApiResponse<object>.ErrorResult("Internal server error during login", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Đăng ký tài khoản mới
+        /// </summary>
+        [HttpPost("register")]
+public async Task<ActionResult<ApiResponse<object>>> Register([FromBody] RegisterDto dto)
+{
+    try
+    {
+        // Kiểm tra trùng lặp theo Phone hoặc FullName
+        var exists = await _userRepository.ExistsByPhoneOrFullNameAsync(dto.PhoneNumber, dto.FullName);
+        if (exists)
+        {
+            return BadRequest(ApiResponse<object>.ErrorResult("IDENTITY HAD ALREADY EXISTED"));
+        }
+
+        var user = new User
+        {
+            UserId = Guid.NewGuid(),
+            FullName = dto.FullName,
+            Phone = dto.PhoneNumber,
+            
+            PasswordHash = PasswordHelper.HashPassword(dto.Password),
+            CreatedAt = DateTime.UtcNow,
+            Status = "1"
+        };
+
+        await _userRepository.AddAsync(user);
+
+        var data = new
+        {
+            token = "dummy-jwt-token",
+            userId = user.UserId,
+            fullName = user.FullName,
+            phone = user.Phone
+        };
+
+        return Ok(ApiResponse<object>.SuccessResult(data, "Register success"));
+    }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Register error: {Message}", ex.InnerException?.Message ?? ex.Message);
+                return StatusCode(500, ApiResponse<object>.ErrorResult(
+                    "Internal server error during registration",
+                    ex.InnerException?.Message ?? ex.Message
+                ));
             }
         }
         //[HttpPost("forgot-password/send-otp")]

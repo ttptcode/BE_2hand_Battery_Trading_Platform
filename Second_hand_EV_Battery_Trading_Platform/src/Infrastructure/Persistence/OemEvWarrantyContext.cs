@@ -280,7 +280,8 @@ public partial class OemEvWarrantyContext : DbContext
 
             entity.ToTable("User");
 
-            entity.HasIndex(e => e.Email, "UQ__User__A9D10534E5B949DF").IsUnique();
+
+            entity.HasIndex(e => e.Email, "UQ__User__A9D10534E5B949DF");
 
             entity.Property(e => e.UserId).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");

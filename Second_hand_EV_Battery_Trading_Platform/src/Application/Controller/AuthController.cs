@@ -47,6 +47,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
                     userId = user.UserId,
                     fullName = user.FullName,
                     phone = user.Phone
+
                 };
 
                 return Ok(ApiResponse<object>.SuccessResult(data, "Login success"));
@@ -81,7 +82,8 @@ public async Task<ActionResult<ApiResponse<object>>> Register([FromBody] Registe
             
             PasswordHash = PasswordHelper.HashPassword(dto.Password),
             CreatedAt = DateTime.UtcNow,
-            Status = "1"
+            Status = "1",
+            RoleId = Guid.Parse("D4A49C9E-DF1D-4CBB-A1A6-816FB453E5BD")
         };
 
         await _userRepository.AddAsync(user);

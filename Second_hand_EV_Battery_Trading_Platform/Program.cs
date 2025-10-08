@@ -14,6 +14,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IChatService, ChatService>();  // ? cái b? thi?u
+builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -11,7 +11,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
         {
             // Xóa UNIQUE CONSTRAINT
             migrationBuilder.Sql(
-                "ALTER TABLE [User] DROP CONSTRAINT [UQ__User__A9D10534014DD8DD];");
+                "ALTER TABLE [User] DROP CONSTRAINT [UQ__User__A9D10534E5B949DF];");
 
             // Tạo lại index thường (non-unique)
             migrationBuilder.CreateIndex(

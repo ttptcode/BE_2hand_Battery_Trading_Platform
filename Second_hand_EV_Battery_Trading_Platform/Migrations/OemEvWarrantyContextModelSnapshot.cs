@@ -262,6 +262,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<decimal?>("BidIncrement")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("BuyNowPrice")
                         .HasColumnType("decimal(18, 2)");
 

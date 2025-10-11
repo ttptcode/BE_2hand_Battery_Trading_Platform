@@ -18,6 +18,75 @@ public class ListingRepository : IListingRepository
         return await _context.Listings.FirstOrDefaultAsync(l => l.ListingId == id);
     }
 
+    public async Task<Listing?> GetByIdDetailedAsync(Guid id)
+        => await _context.Listings
+            .Include(l => l.User)
+            .Include(l => l.Item)
+            .Include(l => l.Fee)
+            .FirstOrDefaultAsync(l => l.ListingId == id);
+
+    public async Task<IEnumerable<Listing>> GetAllAsync()
+        => await _context.Listings
+            .Include(l => l.User)
+            .Include(l => l.Item)
+            .Include(l => l.Fee)
+            .OrderByDescending(l => l.CreatedAt)
+            .ToListAsync();
+
+    public async Task<IEnumerable<Listing>> GetByUserIdAsync(Guid userId)
+        => await _context.Listings
+            .Include(l => l.User)
+            .Include(l => l.Item)
+            .Include(l => l.Fee)
+            .Where(l => l.UserId == userId)
+            .OrderByDescending(l => l.CreatedAt)
+            .ToListAsync();
+
+    public async Task<IEnumerable<Listing>> GetByListingTypeAsync(string listingType)
+        => await _context.Listings
+            .Include(l => l.User).Include(l => l.Item).Include(l => l.Fee)
+            .Where(l => l.ListingType == listingType)
+            .OrderByDescending(l => l.CreatedAt)
+            .ToListAsync();
+
+    public async Task<IEnumerable<Listing>> GetByItemIdAsync(Guid itemId)
+        => await _context.Listings
+            .Include(l => l.User).Include(l => l.Item).Include(l => l.Fee)
+            .Where(l => l.ItemId == itemId)
+            .OrderByDescending(l => l.CreatedAt)
+            .ToListAsync();
+
+    public async Task<IEnumerable<Listing>> GetByStatusAsync(string status)
+        => await _context.Listings
+            .Include(l => l.User).Include(l => l.Item).Include(l => l.Fee)
+            .Where(l => l.Status == status)
+            .OrderByDescending(l => l.CreatedAt)
+            .ToListAsync();
+
+    public async Task<IEnumerable<Listing>> SearchAsync(string? keyword, string? listingType, string? status)
+    {
+        var q = _context.Listings
+            .Include(l => l.User)
+            .Include(l => l.Item)
+            .Include(l => l.Fee)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            q = q.Where(l =>
+                (l.Item!.Title != null && l.Item.Title.Contains(keyword)) ||
+                (l.User!.FullName != null && l.User.FullName.Contains(keyword)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(listingType))
+            q = q.Where(l => l.ListingType == listingType);
+
+        if (!string.IsNullOrWhiteSpace(status))
+            q = q.Where(l => l.Status == status);
+
+        return await q.OrderByDescending(l => l.CreatedAt).ToListAsync();
+    }
+
     public async Task<decimal> GetCurrentPriceAsync(Guid listingId)
     {
         var listing = await _context.Listings.FirstOrDefaultAsync(l => l.ListingId == listingId);
@@ -39,6 +108,7 @@ public class ListingRepository : IListingRepository
         _context.Listings.Update(listing);
         await _context.SaveChangesAsync();
     }
+
     public async Task<Listing> CreateAsync(Listing listing)
     {
         listing.ListingId = Guid.NewGuid();
@@ -48,6 +118,20 @@ public class ListingRepository : IListingRepository
         await _context.SaveChangesAsync();
         return listing;
     }
+
+    public async Task<Listing> UpdateAsync(Listing listing)
+    {
+        _context.Listings.Update(listing);
+        await _context.SaveChangesAsync();
+        return listing;
+    }
+
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var e = await _context.Listings.FindAsync(id);
+        if (e == null) return false;
+        _context.Listings.Remove(e);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }
-
-

@@ -171,4 +171,109 @@ public class ListingService : IListingService
             CreatedAt = created.CreatedAt
         };
     }
+
+    public async Task<IEnumerable<ListingResponseDto>> GetAllListingsAsync()
+        => (await _listingRepo.GetAllAsync()).Select(MapToResponse);
+
+    public async Task<ListingResponseDto?> GetListingByListingIdAsync(Guid listingId)
+    {
+        var listing = await _listingRepo.GetByIdDetailedAsync(listingId);
+        return listing is null ? null : MapToResponse(listing);
+    }
+
+    public async Task<IEnumerable<ListingResponseDto>> GetListingsByUserIdAsync(Guid userId)
+        => (await _listingRepo.GetByUserIdAsync(userId)).Select(MapToResponse);
+
+    public async Task<IEnumerable<ListingResponseDto>> GetListingsByListingTypeAsync(string listingType)
+        => (await _listingRepo.GetByListingTypeAsync(listingType)).Select(MapToResponse);
+
+    public async Task<IEnumerable<ListingResponseDto>> GetListingsByItemIdAsync(Guid itemId)
+        => (await _listingRepo.GetByItemIdAsync(itemId)).Select(MapToResponse);
+
+    public async Task<IEnumerable<ListingResponseDto>> GetListingsByStatusAsync(string status)
+        => (await _listingRepo.GetByStatusAsync(status)).Select(MapToResponse);
+
+    public async Task<IEnumerable<ListingResponseDto>> SearchListingsAsync(string? keyword, string? listingType, string? status)
+        => (await _listingRepo.SearchAsync(keyword, listingType, status)).Select(MapToResponse);
+
+    public async Task<ListingResponseDto?> UpdateListingAsync(UpdateListingDto dto)
+    {
+        var listing = await _listingRepo.GetByIdDetailedAsync(dto.ListingId);
+        if (listing is null) return null;
+
+        // Cập nhật STATUS (nếu có)
+        if (!string.IsNullOrWhiteSpace(dto.Status))
+            listing.Status = dto.Status;
+
+        // Chỉ cho cập nhật các trường GIÁ theo loại listing hiện tại
+        var isBuyNow = listing.ListingType?.Equals(nameof(ListingTypeDto.BuyNow), StringComparison.OrdinalIgnoreCase) ?? false;
+        var isAuction = listing.ListingType?.Equals(nameof(ListingTypeDto.Auction), StringComparison.OrdinalIgnoreCase) ?? false;
+
+        if (isBuyNow)
+        {
+            if (dto.BuyNowPrice.HasValue)
+            {
+                if (dto.BuyNowPrice.Value <= 0)
+                    throw new InvalidOperationException("BuyNowPrice must be > 0.");
+                listing.BuyNowPrice = dto.BuyNowPrice.Value;
+            }
+
+            // Không cho sửa StartPrice/BidIncrement ở chế độ BuyNow
+            if (dto.StartPrice.HasValue || dto.BidIncrement.HasValue)
+                throw new InvalidOperationException("Cannot update StartPrice/BidIncrement for BuyNow listing.");
+        }
+        else if (isAuction)
+        {
+            if (dto.StartPrice.HasValue)
+            {
+                if (dto.StartPrice.Value < 0)
+                    throw new InvalidOperationException("StartPrice must be >= 0.");
+                listing.StartPrice = dto.StartPrice.Value;
+            }
+
+            if (dto.BidIncrement.HasValue)
+            {
+                if (dto.BidIncrement.Value <= 0)
+                    throw new InvalidOperationException("BidIncrement must be > 0.");
+                listing.BidIncrement = dto.BidIncrement.Value;
+            }
+
+            // Không cho sửa BuyNowPrice ở chế độ Auction
+            if (dto.BuyNowPrice.HasValue)
+                throw new InvalidOperationException("Cannot update BuyNowPrice for Auction listing.");
+        }
+        else
+        {
+            throw new InvalidOperationException("ListingType is invalid.");
+        }
+
+        listing.UpdatedAt = DateTime.UtcNow;
+        var saved = await _listingRepo.UpdateAsync(listing);
+        return MapToResponse(saved);
+    }
+
+    public Task<bool> DeleteListingAsync(Guid listingId) => _listingRepo.DeleteAsync(listingId);
+
+    private static ListingResponseDto MapToResponse(Listing l)
+    {
+        return new ListingResponseDto
+        {
+            ListingId = l.ListingId,
+            ItemId = l.ItemId ?? Guid.Empty,
+            UserId = l.UserId ?? Guid.Empty,
+            ListingType = l.ListingType ?? "",
+            BuyNowPrice = l.BuyNowPrice,
+            StartPrice = l.StartPrice,
+            BidIncrement = l.BidIncrement,
+            StartDate = l.StartDate,
+            EndDate = l.EndDate,
+            Status = l.Status ?? "",
+            FeeId = l.FeeId,
+            CreatedAt = l.CreatedAt,
+            UpdatedAt = l.UpdatedAt,
+            UserName = l.User?.FullName,
+            ItemTitle = l.Item?.Title,
+            FeeName = l.Fee?.FeeName
+        };
+    }
 }

@@ -5,6 +5,10 @@ VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Second_hand_EV_Battery_Trading_Platform", "Second_hand_EV_Battery_Trading_Platform\Second_hand_EV_Battery_Trading_Platform.csproj", "{0E6D0A7A-E7E4-4A62-AC19-0669981961BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Second_hand_EV_Battery_Trading_Platform.AppHost", "Second_hand_EV_Battery_Trading_Platform.AppHost\Second_hand_EV_Battery_Trading_Platform.AppHost.csproj", "{55B57C6D-437E-4815-B060-C36AB7853869}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Second_hand_EV_Battery_Trading_Platform.ServiceDefaults", "Second_hand_EV_Battery_Trading_Platform.ServiceDefaults\Second_hand_EV_Battery_Trading_Platform.ServiceDefaults.csproj", "{7843CC03-D43D-471A-AD78-726D00845511}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{0E6D0A7A-E7E4-4A62-AC19-0669981961BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E6D0A7A-E7E4-4A62-AC19-0669981961BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E6D0A7A-E7E4-4A62-AC19-0669981961BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55B57C6D-437E-4815-B060-C36AB7853869}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55B57C6D-437E-4815-B060-C36AB7853869}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55B57C6D-437E-4815-B060-C36AB7853869}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55B57C6D-437E-4815-B060-C36AB7853869}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7843CC03-D43D-471A-AD78-726D00845511}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7843CC03-D43D-471A-AD78-726D00845511}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7843CC03-D43D-471A-AD78-726D00845511}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7843CC03-D43D-471A-AD78-726D00845511}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

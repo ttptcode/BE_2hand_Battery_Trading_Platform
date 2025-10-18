@@ -14,10 +14,11 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-
-        public AuthService(IUserRepository userRepository)
+        private readonly ITokenService _tokenService;
+        public AuthService(IUserRepository userRepository, ITokenService tokenService)
         {
             _userRepository = userRepository;
+            _tokenService = tokenService;
         }
 
         // Đăng ký
@@ -45,20 +46,37 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces
         }
 
         // Đăng nhập
-        public async Task<User?> LoginAsync(LoginRequest request)
+        public async Task<LoginResponse?> LoginAsync(LoginRequest request)
         {
-            // Tìm user theo số điện thoại
-            var user = await _userRepository.GetByPhoneAsync(request.PhoneNumber);
-
-            if (user == null) return null;
-
-            // Hash lại mật khẩu nhập vào để so sánh với trong DB
+            // 🔹 Lấy user kèm Role từ DB
+            var user = await _userRepository.Query()
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Phone == request.PhoneNumber);
+            
+            if (user == null)
+                return null;
+          
+            // 🔹 Kiểm tra mật khẩu
             var hashedInput = PasswordHelper.HashPassword(request.Password);
+            if (user.PasswordHash != hashedInput)
+                return null;
 
-            if (user.PasswordHash != hashedInput) return null;
+            // 🔹 Lấy role name (nếu không có thì gán mặc định là "user")
+            var roleName = user.Role?.RoleName ?? "user";
 
-            return user;
+            // 🔹 Sinh token chứa claim role
+            var token = _tokenService.GenerateToken(user, roleName);
+
+            return new LoginResponse
+            {
+                Token = token,
+                FullName = user.FullName,
+                Phone = user.Phone,
+                Role = roleName
+            };
         }
+
+
 
         // Hash mật khẩu
         private string HashPassword(string password)

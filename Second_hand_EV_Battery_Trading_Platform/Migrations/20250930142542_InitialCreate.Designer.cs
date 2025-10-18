@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 {
     [DbContext(typeof(OemEvWarrantyContext))]
-    partial class OemEvWarrantyContextModelSnapshot : ModelSnapshot
+    [Migration("20250930142542_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -263,7 +266,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasDefaultValueSql("(newid())");
 
                     b.Property<decimal?>("BidIncrement")
-                        .HasColumnType("decimal(18, 2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("BuyNowPrice")
                         .HasColumnType("decimal(18, 2)");
@@ -436,9 +439,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("Balance")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -482,39 +482,11 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex(new[] { "Email" }, "UQ__User__A9D10534E5B949DF");
+                    b.HasIndex(new[] { "Email" }, "UQ__User__A9D10534E5B949DF")
+                        .IsUnique()
+                        .HasFilter("[Email] IS NOT NULL");
 
                     b.ToTable("User", (string)null);
-                });
-
-            modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.UserPackage", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FeeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("ActivatedAt")
-                        .HasColumnType("datetime");
-
-                    b.Property<DateTime>("ExpiredAt")
-                        .HasColumnType("datetime");
-
-                    b.Property<int>("RemainingListings")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
-
-                    b.HasKey("UserId", "FeeId")
-                        .HasName("PK_UserPackage");
-
-                    b.HasIndex("FeeId");
-
-                    b.ToTable("UserPackage", (string)null);
                 });
 
             modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.UserReputationReview", b =>
@@ -695,25 +667,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasConstraintName("FK__User__RoleId__6A30C649");
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.UserPackage", b =>
-                {
-                    b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.FeeCommission", "FeeCommission")
-                        .WithMany()
-                        .HasForeignKey("FeeId")
-                        .IsRequired()
-                        .HasConstraintName("FK_UserPackage_FeeCommission");
-
-                    b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .IsRequired()
-                        .HasConstraintName("FK_UserPackage_User");
-
-                    b.Navigation("FeeCommission");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.UserReputationReview", b =>

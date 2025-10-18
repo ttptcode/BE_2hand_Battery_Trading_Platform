@@ -25,7 +25,7 @@ public class BiddingService : IBiddingService
         var listing = await _listingRepository.GetByIdAsync(request.ListingId)
             ?? throw new InvalidOperationException("Listing not found");
 
-        
+
 
         var user = await _userRepository.GetByIdAsync(request.BidderId);
         if (user == null || user.Status != "1")

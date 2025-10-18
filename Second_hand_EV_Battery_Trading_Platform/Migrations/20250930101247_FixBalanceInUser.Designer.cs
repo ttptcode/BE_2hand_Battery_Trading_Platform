@@ -12,8 +12,8 @@ using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 {
     [DbContext(typeof(OemEvWarrantyContext))]
-    [Migration("20251001042849_InitialBaseline")]
-    partial class InitialBaseline
+    [Migration("20250930101247_FixBalanceInUser")]
+    partial class FixBalanceInUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -265,6 +265,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<decimal?>("BidIncrement")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("BuyNowPrice")
                         .HasColumnType("decimal(18, 2)");
 
@@ -435,6 +438,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime");

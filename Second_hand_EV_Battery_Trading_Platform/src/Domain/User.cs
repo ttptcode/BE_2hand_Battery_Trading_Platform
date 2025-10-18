@@ -18,6 +18,8 @@ public partial class User
 
     public string? PasswordHash { get; set; }
 
+    public decimal Balance { get; set; } = 0;
+
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }

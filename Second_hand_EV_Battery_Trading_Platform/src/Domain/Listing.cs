@@ -23,6 +23,8 @@ public partial class Listing
 
     public decimal? BuyNowPrice { get; set; }
 
+    public decimal? BidIncrement { get; set; }
+
     public string? Status { get; set; }
 
     public DateTime? CreatedAt { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 {
     [DbContext(typeof(OemEvWarrantyContext))]
-    partial class OemEvWarrantyContextModelSnapshot : ModelSnapshot
+    [Migration("20250929164504_AddBidIncrementToListing")]
+    partial class AddBidIncrementToListing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -262,6 +265,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<decimal?>("BidIncrement")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("BuyNowPrice")
                         .HasColumnType("decimal(18, 2)");
 
@@ -433,9 +439,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime");
 
@@ -475,7 +478,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex(new[] { "Email" }, "UQ__User__A9D10534E5B949DF");
+                    b.HasIndex(new[] { "Email" }, "UQ__User__A9D10534E5B949DF")
+                        .IsUnique()
+                        .HasFilter("[Email] IS NOT NULL");
 
                     b.ToTable("User", (string)null);
                 });

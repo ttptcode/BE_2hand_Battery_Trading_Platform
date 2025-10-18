@@ -39,6 +39,8 @@ public partial class OemEvWarrantyContext : DbContext
 
     public virtual DbSet<UserReputationReview> UserReputationReviews { get; set; }
 
+    public virtual DbSet<UserPackage> UserPackages { get; set; }
+
 //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
 //        => optionsBuilder.UseSqlServer("Server=LAPTOP-O1MT6N7J\\SQLEXPRESS;Database=OEM_EV_Warranty;Trusted_Connection=True;TrustServerCertificate=True;");
@@ -179,6 +181,7 @@ public partial class OemEvWarrantyContext : DbContext
             entity.ToTable("Listing");
 
             entity.Property(e => e.ListingId).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.BidIncrement).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.BuyNowPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.EndDate).HasColumnType("datetime");
@@ -284,6 +287,7 @@ public partial class OemEvWarrantyContext : DbContext
             entity.HasIndex(e => e.Email, "UQ__User__A9D10534E5B949DF");
 
             entity.Property(e => e.UserId).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Balance).HasColumnType("decimal(18,2)");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
@@ -328,6 +332,29 @@ public partial class OemEvWarrantyContext : DbContext
             entity.HasOne(d => d.Reviewer).WithMany(p => p.UserReputationReviewReviewers)
                 .HasForeignKey(d => d.ReviewerId)
                 .HasConstraintName("FK__UserReput__Revie__778AC167");
+        });
+
+        modelBuilder.Entity<UserPackage>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.FeeId }).HasName("PK_UserPackage");
+
+            entity.ToTable("UserPackage");
+
+            entity.Property(e => e.ActivatedAt).HasColumnType("datetime");
+            entity.Property(e => e.ExpiredAt).HasColumnType("datetime");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserPackage_User");
+
+            entity.HasOne(d => d.FeeCommission).WithMany()
+                .HasForeignKey(d => d.FeeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserPackage_FeeCommission");
         });
 
         OnModelCreatingPartial(modelBuilder);

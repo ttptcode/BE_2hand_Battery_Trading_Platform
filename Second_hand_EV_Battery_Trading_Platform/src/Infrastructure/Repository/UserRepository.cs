@@ -52,4 +52,11 @@ public class UserRepository : IUserRepository
     {
         return _context.Users.Include(u => u.Role);
     }
+
+    public async Task<User> UpdateAsync(User user)
+    {
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+        return user;
+    }   
 }

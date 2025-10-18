@@ -12,5 +12,7 @@ public interface IUserRepository
     Task AddAsync(User user);
     Task<bool> ExistsByPhoneOrFullNameAsync(string phone, string fullName);
     IQueryable<User> Query();
+    Task<User> UpdateAsync(User user);
 
 }
+

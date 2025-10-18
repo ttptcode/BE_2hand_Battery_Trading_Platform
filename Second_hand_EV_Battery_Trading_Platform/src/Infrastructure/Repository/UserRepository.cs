@@ -48,4 +48,8 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users.AnyAsync(u => u.Phone == phone || u.FullName == fullName);
     }
+    public IQueryable<User> Query()
+    {
+        return _context.Users.Include(u => u.Role);
+    }
 }

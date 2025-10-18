@@ -1,0 +1,45 @@
+{
+    "id": "myrealm",
+    "realm": "myrealm",
+    "enabled": true,
+    "clients": [
+        {
+            "clientId": "my-api-client",
+            "name": "My API Client",
+            "enabled": true,
+            "protocol": "openid-connect",
+            "publicClient": true,
+            "redirectUris": [ "*" ],
+            "webOrigins": [ "*" ],
+            "attributes": {
+                "post.logout.redirect.uris": "*"
+            },
+            "defaultRoles": [ "user" ],
+            "directAccessGrantsEnabled": true,
+            "standardFlowEnabled": true
+        }
+    ],
+    "roles": {
+        "realm": [
+            { "name": "admin" },
+            { "name": "user" }
+        ]
+    },
+    "users": [
+        {
+            "username": "admin",
+            "enabled": true,
+            "emailVerified": true,
+            "firstName": "System",
+            "lastName": "Admin",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "admin",
+                    "temporary": false
+                }
+            ],
+            "realmRoles": [ "admin" ]
+        }
+    ]
+}

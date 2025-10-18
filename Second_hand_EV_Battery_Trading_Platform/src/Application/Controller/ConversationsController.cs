@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces;
 
@@ -17,6 +18,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
 
         // Lấy tất cả conversation của 1 user
         [HttpGet("{userId}")]
+        
         public async Task<IActionResult> GetConversations(Guid userId)
         {
             try

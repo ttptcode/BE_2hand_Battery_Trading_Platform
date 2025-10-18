@@ -11,5 +11,6 @@ public interface IUserRepository
     Task<User?> GetByPhoneAsync(string phone); // ?? thêm dòng này
     Task AddAsync(User user);
     Task<bool> ExistsByPhoneOrFullNameAsync(string phone, string fullName);
+    IQueryable<User> Query();
 
 }

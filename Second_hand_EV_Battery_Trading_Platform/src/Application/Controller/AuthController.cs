@@ -16,12 +16,26 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
     {
         private readonly IUserRepository _userRepository;
         private readonly ILogger<AuthController> _logger;
-
-        public AuthController(IUserRepository userRepository, ILogger<AuthController> logger)
+        private readonly IConfiguration _configuration;
+        private readonly ITokenService _tokenService;
+        public AuthController(
+    IUserRepository userRepository,
+    ILogger<AuthController> logger,
+    IConfiguration configuration,
+    ITokenService tokenService)
         {
             _userRepository = userRepository;
             _logger = logger;
+            _configuration = configuration;
+            _tokenService = tokenService;
         }
+
+        public class LoginDto
+        {
+            public string PhoneNumber { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+        }
+
         [HttpPost("login")]
         public async Task<ActionResult<ApiResponse<object>>> Login([FromBody] LoginDto dto)
         {
@@ -30,24 +44,25 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
                 var user = await _userRepository.GetByPhoneAsync(dto.PhoneNumber);
 
                 if (user == null)
-                {
                     return Unauthorized(ApiResponse<object>.ErrorResult("User not found"));
-                }
 
                 var hashedInput = PasswordHelper.HashPassword(dto.Password);
-
                 if (user.PasswordHash != hashedInput)
-                {
                     return Unauthorized(ApiResponse<object>.ErrorResult("Invalid password"));
-                }
+
+                // ✅ Lấy RoleName
+                var roleName = user.Role?.RoleName ?? "User";
+
+                // ✅ Sinh token bằng TokenService
+                var token = _tokenService.GenerateToken(user, roleName);
 
                 var data = new
                 {
-                    token = "dummy-jwt-token",
+                    token,
                     userId = user.UserId,
                     fullName = user.FullName,
-                    phone = user.Phone
-
+                    phone = user.Phone,
+                    role = roleName
                 };
 
                 return Ok(ApiResponse<object>.SuccessResult(data, "Login success"));
@@ -55,9 +70,12 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while login");
-                return StatusCode(500, ApiResponse<object>.ErrorResult("Internal server error during login", ex.Message));
+                return StatusCode(500, ApiResponse<object>.ErrorResult(
+                    "Internal server error during login", ex.Message));
             }
         }
+
+
 
         /// <summary>
         /// Đăng ký tài khoản mới

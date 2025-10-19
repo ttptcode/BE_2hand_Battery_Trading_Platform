@@ -58,6 +58,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
         /// Gửi tin nhắn trong một cuộc hội thoại
         /// </summary>
         [HttpPost]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<ApiResponse<object>>> SendMessage([FromBody] SendMessageRequest request)
         {
             try

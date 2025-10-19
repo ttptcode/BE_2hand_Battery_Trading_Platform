@@ -11,7 +11,7 @@ public partial class Item
 
     public string? SerialNumber { get; set; }
 
-    public string? ItemType { get; set; }
+    public Guid? ItemTypeId { get; set; }
 
     public string? Title { get; set; }
 
@@ -46,6 +46,8 @@ public partial class Item
     public virtual ICollection<Listing> Listings { get; set; } = new List<Listing>();
 
     public virtual User? User { get; set; }
+
+    public virtual ItemType? ItemType { get; set; }
 
     public virtual ICollection<UserReputationReview> UserReputationReviews { get; set; } = new List<UserReputationReview>();
 }

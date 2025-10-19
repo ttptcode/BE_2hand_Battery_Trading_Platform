@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces;
@@ -8,6 +9,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "User")]
 public class ListingsController : ControllerBase
 {
     private readonly IBiddingService _biddingService;
@@ -22,6 +24,8 @@ public class ListingsController : ControllerBase
     }
 
     [HttpPost("proxy-bid")]
+    [Authorize(Roles = "User")]
+
     public async Task<ActionResult<ApiResponse<PlaceProxyBidResponseDto>>> PlaceProxyBid([FromBody] PlaceProxyBidRequestDto request)
     {
         if (!ModelState.IsValid)
@@ -46,10 +50,12 @@ public class ListingsController : ControllerBase
     }
 
     /// <summary>
-    /// ??ng tin (B�n ngay ho?c ??u gi�) + x? l� thanh to�n (VIP/Post).
+    /// Tạo một listing mới (Bán ngay hoặc Đấu giá) và xử lý thanh toán (VIP/Post).
     /// </summary>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<ListingResponseDto>), StatusCodes.Status201Created)]
+    [Authorize(Roles = "User")]
+
     public async Task<ActionResult<ApiResponse<ListingResponseDto>>> Create([FromBody] CreateListingDto dto)
     {
         try
@@ -61,7 +67,7 @@ public class ListingsController : ControllerBase
             }
 
             var created = await _listingService.CreateListingWithPaymentAsync(dto);
-            // Kh�ng d�ng CreatedAtAction (v� b? GET), tr? 201 tr?c ti?p:
+            // Không dùng CreatedAtAction (vì b? GET), tr? 201 tr?c ti?p:
             return StatusCode(201, ApiResponse<ListingResponseDto>.SuccessResult(created, "Listing created successfully"));
         }
         catch (InvalidOperationException ex)
@@ -74,6 +80,10 @@ public class ListingsController : ControllerBase
             return StatusCode(500, ApiResponse<ListingResponseDto>.ErrorResult("Internal server error", ex.Message));
         }
     }
+
+    /// <summary>
+    /// Lấy danh sách tất cả các listing.
+    /// </summary>
 
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IEnumerable<ListingResponseDto>>>> GetAllListings()
@@ -89,6 +99,10 @@ public class ListingsController : ControllerBase
             return StatusCode(500, ApiResponse<IEnumerable<ListingResponseDto>>.ErrorResult("Internal server error occurred while retrieving listings", ex.Message));
         }
     }
+
+    /// <summary>   
+    /// Lấy thông tin chi tiết của một listing dựa trên ListingId.
+    /// </summary>
 
     [HttpGet("{listingId}")]
     public async Task<ActionResult<ApiResponse<ListingResponseDto>>> GetListingById(Guid listingId)
@@ -108,6 +122,12 @@ public class ListingsController : ControllerBase
         }
     }
 
+
+    /// <summary>
+    ///  Lấy danh sách các listing được tạo bởi một user cụ thể dựa trên UserId.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
     [HttpGet("by-user/{userId}")]
     public async Task<ActionResult<ApiResponse<IEnumerable<ListingResponseDto>>>> GetByUser(Guid userId)
     {
@@ -122,6 +142,12 @@ public class ListingsController : ControllerBase
             return StatusCode(500, ApiResponse<IEnumerable<ListingResponseDto>>.ErrorResult("Internal server error occurred while retrieving listings by user", ex.Message));
         }
     }
+
+    /// <summary>
+    ///  Lấy danh sách các listing theo loại listing (Bán ngay hoặc Đấu giá).
+    /// </summary>
+    /// <param name="listingType"></param>
+    /// <returns></returns>
 
     [HttpGet("by-type/{listingType}")]
     public async Task<ActionResult<ApiResponse<IEnumerable<ListingResponseDto>>>> GetByType(string listingType)
@@ -153,37 +179,13 @@ public class ListingsController : ControllerBase
         }
     }
 
-    [HttpGet("by-status/{status}")]
-    public async Task<ActionResult<ApiResponse<IEnumerable<ListingResponseDto>>>> GetByStatus(string status)
-    {
-        try
-        {
-            var listings = await _listingService.GetListingsByStatusAsync(status);
-            return Ok(ApiResponse<IEnumerable<ListingResponseDto>>.SuccessResult(listings, $"Listings with status '{status}' retrieved successfully"));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting listings by status {Status}", status);
-            return StatusCode(500, ApiResponse<IEnumerable<ListingResponseDto>>.ErrorResult("Internal server error occurred while retrieving listings by status", ex.Message));
-        }
-    }
 
-    [HttpGet("search")]
-    public async Task<ActionResult<ApiResponse<IEnumerable<ListingResponseDto>>>> Search([FromQuery] string? keyword, [FromQuery] string? listingType, [FromQuery] string? status)
-    {
-        try
-        {
-            var results = await _listingService.SearchListingsAsync(keyword, listingType, status);
-            return Ok(ApiResponse<IEnumerable<ListingResponseDto>>.SuccessResult(results, "Search completed successfully"));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error searching listings");
-            return StatusCode(500, ApiResponse<IEnumerable<ListingResponseDto>>.ErrorResult("Internal server error occurred while searching listings", ex.Message));
-        }
-    }
-
+    /// <summary>
+    /// Cập nhật thông tin của một listing dựa trên ListingId.
+    /// </summary>
     [HttpPut("{listingId}")]
+    [Authorize(Roles = "User")]
+
     public async Task<ActionResult<ApiResponse<ListingResponseDto>>> Update(Guid listingId, [FromBody] UpdateListingDto dto)
     {
         try
@@ -213,7 +215,15 @@ public class ListingsController : ControllerBase
         }
     }
 
+
+    /// <summary>
+    /// xóa một listing dựa trên ListingId.
+    /// </summary>
+    /// <param name="listingId"></param>
+    /// <returns></returns>
     [HttpDelete("{listingId}")]
+    [Authorize(Roles = "User")]
+
     public async Task<ActionResult<ApiResponse>> Delete(Guid listingId)
     {
         try

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces;
+using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
 
 namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
 {
@@ -16,40 +17,47 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
             _chatService = chatService;
         }
 
-        // Lấy tất cả conversation của 1 user
+        /// <summary>
+        /// lay danh sach cuoc tro chuyen cua user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet("{userId}")]
-        
-        public async Task<IActionResult> GetConversations(Guid userId)
+        [Authorize(Roles = "User")]
+
+        public async Task<ActionResult<ApiResponse<IEnumerable<ConversationResponseDto>>>> GetConversations(Guid userId)
         {
             try
             {
                 var conversations = await _chatService.GetConversationsAsync(userId);
 
-                if (conversations == null || !conversations.Any())
-                    return NotFound(new { message = "No conversations found for this user." });
 
-                var result = conversations.Select(c => new
+                var result = conversations.Select(c => new ConversationResponseDto
                 {
-                    conversationId = c.ConversationId,
-                    createdAt = c.CreatedAt,
-                    status = c.Status,
-                    seller = c.Seller != null
-                        ? new { userId = c.Seller.UserId, fullName = c.Seller.FullName }
+                    ConversationId = c.ConversationId,
+                    ItemId = c.ItemId,
+                    SellerId = c.SellerId,
+                    BuyerId = c.BuyerId,
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt,
+                    Status = c.Status,
+                    Seller = c.Seller != null
+                        ? new UserSummaryDto { UserId = c.Seller.UserId, FullName = c.Seller.FullName }
                         : null,
-                    buyer = c.Buyer != null
-                        ? new { userId = c.Buyer.UserId, fullName = c.Buyer.FullName }
+                    Buyer = c.Buyer != null
+                        ? new UserSummaryDto { UserId = c.Buyer.UserId, FullName = c.Buyer.FullName }
                         : null,
-                    lastMessage = c.Messages
+                    LastMessage = c.Messages?
                         .OrderByDescending(m => m.CreatedAt)
                         .FirstOrDefault()?.Content ?? "(No messages yet)"
                 });
 
-                return Ok(result);
+                return Ok(ApiResponse<IEnumerable<ConversationResponseDto>>.SuccessResult(result, "Conversations retrieved successfully"));
             }
             catch (Exception ex)
             {
                 // log lỗi nếu cần
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                return StatusCode(500, ApiResponse<IEnumerable<ConversationResponseDto>>.ErrorResult("Internal server error", ex.Message));
             }
         }
     }

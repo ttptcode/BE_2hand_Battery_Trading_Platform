@@ -27,6 +27,8 @@ public partial class OemEvWarrantyContext : DbContext
 
     public virtual DbSet<Item> Items { get; set; }
 
+    public virtual DbSet<ItemType> ItemTypes { get; set; }
+
     public virtual DbSet<Listing> Listings { get; set; }
 
     public virtual DbSet<Message> Messages { get; set; }
@@ -57,7 +59,7 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.CompletedAt).HasColumnType("datetime");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.WinnerMaxBid).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.WinningBid).HasColumnType("decimal(18, 2)");
 
@@ -99,7 +101,7 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Buyer).WithMany(p => p.ConversationBuyers)
@@ -127,10 +129,10 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.Description).HasColumnType("text");
             entity.Property(e => e.FeeName)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.FeeType)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.SavingAmount).HasColumnType("decimal(18, 2)");
         });
 
@@ -140,38 +142,57 @@ public partial class OemEvWarrantyContext : DbContext
 
             entity.ToTable("Item");
 
-            entity.HasIndex(e => e.SerialNumber, "UQ__Item__048A000870549516").IsUnique();
+            entity.HasIndex(e => e.SerialNumber, "UQ__Item__048A000870549516");
 
             entity.Property(e => e.ItemId).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Brand)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Condition)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Images).HasColumnType("text");
-            entity.Property(e => e.ItemType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.ItemTypeId).HasColumnType("uniqueidentifier");
             entity.Property(e => e.Model)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.SerialNumber)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.User).WithMany(p => p.Items)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Item__UserId__6B24EA82");
+
+            entity.HasOne(d => d.ItemType).WithMany(p => p.Items)
+                .HasForeignKey(d => d.ItemTypeId)
+                .HasConstraintName("FK__Item__ItemTypeId");
+        });
+
+        modelBuilder.Entity<ItemType>(entity =>
+        {
+            entity.HasKey(e => e.ItemTypeId).HasName("PK__ItemType__ItemTypeId");
+
+            entity.ToTable("ItemType");
+
+            entity.Property(e => e.ItemTypeId).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .IsUnicode(true);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Listing>(entity =>
@@ -187,13 +208,13 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.ListingType)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.StartPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.BidIncrement).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Fee).WithMany(p => p.Listings)
@@ -240,13 +261,13 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.PaymentStatus)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.TransactionRef)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Fee).WithMany(p => p.PaymentTransactions)
@@ -268,14 +289,16 @@ public partial class OemEvWarrantyContext : DbContext
 
             entity.ToTable("Role");
 
-            entity.HasIndex(e => e.RoleName, "UQ__Role__8A2B61601A857A21").IsUnique();
+            entity.HasIndex(e => e.RoleName)
+                  .IsUnique()
+                  .HasDatabaseName("IX_Role_RoleName");
 
             entity.Property(e => e.RoleId).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Description).HasColumnType("text");
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
@@ -286,26 +309,26 @@ public partial class OemEvWarrantyContext : DbContext
             entity.ToTable("User");
 
 
-            entity.HasIndex(e => e.Email, "UQ__User__A9D10534E5B949DF");
+            entity.HasIndex(e => e.Email, "IX_User_Email");
 
             entity.Property(e => e.UserId).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Balance).HasColumnType("decimal(18,2)");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.FullName)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(255)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Phone)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Balance).HasPrecision(18, 2);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
@@ -347,7 +370,7 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.ExpiredAt).HasColumnType("datetime");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .IsUnicode(false);
+                .IsUnicode(true);
 
             entity.HasOne(d => d.User).WithMany()
                 .HasForeignKey(d => d.UserId)

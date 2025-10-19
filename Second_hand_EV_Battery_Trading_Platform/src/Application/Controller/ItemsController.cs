@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces;
@@ -119,6 +120,8 @@ public class ItemsController : ControllerBase
     /// Create new item
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "User")]
+
     public async Task<ActionResult<ApiResponse<ItemResponseDto>>> CreateItem(CreateItemDto createItemDto)
     {
         try
@@ -151,6 +154,8 @@ public class ItemsController : ControllerBase
     /// Update item
     /// </summary>
     [HttpPut("{id}")]
+    [Authorize(Roles = "User")]
+
     public async Task<ActionResult<ApiResponse<ItemResponseDto>>> UpdateItem(Guid id, UpdateItemDto updateItemDto)
     {
         try
@@ -187,6 +192,8 @@ public class ItemsController : ControllerBase
     /// Delete item
     /// </summary>
     [HttpDelete("{id}")]
+    [Authorize(Roles = "User")]
+
     public async Task<ActionResult<ApiResponse>> DeleteItem(Guid id)
     {
         try

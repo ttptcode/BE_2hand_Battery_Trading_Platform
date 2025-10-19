@@ -74,20 +74,29 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Second-hand EV Battery API",
+        Title = "Second-hand EV Battery Trading Platform API",
         Version = "v1",
-        Description = "API xác thực JWT và phân quyền (admin / user)"
+        Description = "API cho nền tảng giao dịch pin xe điện cũ với xác thực JWT và phân quyền",
+        Contact = new OpenApiContact
+        {
+            Name = "Development Team",
+            Email = "dev@example.com"
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT License"
+        }
     });
 
     // 🟢 Dùng Bearer token (JWT) thay vì OAuth2 form login
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Nhập token của bạn vào đây (không cần gõ chữ Bearer).",
+        Description = "Nhập JWT token của bạn vào đây (không cần gõ chữ Bearer).",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,          // 🔹 đổi từ ApiKey → Http
-        Scheme = "bearer",                       // 🔹 chữ thường
-        BearerFormat = "JWT"                     // 🔹 thêm dòng này
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -104,6 +113,18 @@ builder.Services.AddSwaggerGen(c =>
             new string[] {}
         }
     });
+
+    // 📝 Cấu hình XML documentation
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
+
+    // 🏷️ Cấu hình tags và grouping
+    c.TagActionsBy(api => new[] { api.GroupName ?? api.ActionDescriptor.RouteValues["controller"] });
+    c.DocInclusionPredicate((name, api) => true);
 });
 
 // 🧩 3️⃣ Đăng ký các dịch vụ hạ tầng

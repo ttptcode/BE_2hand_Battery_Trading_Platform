@@ -64,7 +64,7 @@ public class ItemService : IItemService
             ItemId = Guid.NewGuid(),
             UserId = createItemDto.UserId,
             SerialNumber = createItemDto.SerialNumber,
-            ItemType = createItemDto.ItemType,
+            ItemTypeId = createItemDto.ItemTypeId,
             Title = createItemDto.Title,
             Brand = createItemDto.Brand,
             Model = createItemDto.Model,
@@ -100,8 +100,8 @@ public class ItemService : IItemService
         if (!string.IsNullOrEmpty(updateItemDto.SerialNumber))
             item.SerialNumber = updateItemDto.SerialNumber;
         
-        if (!string.IsNullOrEmpty(updateItemDto.ItemType))
-            item.ItemType = updateItemDto.ItemType;
+        if (updateItemDto.ItemTypeId.HasValue)
+            item.ItemTypeId = updateItemDto.ItemTypeId;
         
         if (!string.IsNullOrEmpty(updateItemDto.Title))
             item.Title = updateItemDto.Title;
@@ -160,7 +160,8 @@ public class ItemService : IItemService
             ItemId = item.ItemId,
             UserId = item.UserId,
             SerialNumber = item.SerialNumber,
-            ItemType = item.ItemType,
+            ItemTypeId = item.ItemTypeId,
+            ItemTypeName = item.ItemType?.Name,
             Title = item.Title,
             Brand = item.Brand,
             Model = item.Model,

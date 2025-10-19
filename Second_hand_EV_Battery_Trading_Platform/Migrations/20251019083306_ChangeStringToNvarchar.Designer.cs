@@ -12,8 +12,8 @@ using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 {
     [DbContext(typeof(OemEvWarrantyContext))]
-    [Migration("20250930142542_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251019083306_ChangeStringToNvarchar")]
+    partial class ChangeStringToNvarchar
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,8 +40,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("Status")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<Guid?>("WinnerId")
                         .HasColumnType("uniqueidentifier");
@@ -115,8 +115,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("Status")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
@@ -151,13 +151,13 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("FeeName")
                         .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FeeType")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int?>("MaxListings")
                         .HasColumnType("int");
@@ -186,16 +186,16 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("Brand")
                         .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("Capacity")
                         .HasColumnType("int");
 
                     b.Property<string>("Condition")
                         .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime");
@@ -208,34 +208,34 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("ItemType")
                         .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("Mileage")
                         .HasColumnType("int");
 
                     b.Property<string>("Model")
                         .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Status")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Title")
                         .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
@@ -251,9 +251,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex(new[] { "SerialNumber" }, "UQ__Item__048A000870549516")
-                        .IsUnique()
-                        .HasFilter("[SerialNumber] IS NOT NULL");
+                    b.HasIndex(new[] { "SerialNumber" }, "UQ__Item__048A000870549516");
 
                     b.ToTable("Item", (string)null);
                 });
@@ -285,8 +283,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("ListingType")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime");
@@ -296,8 +294,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("Status")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
@@ -370,18 +368,18 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("PaymentMethod")
                         .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("PaymentStatus")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("TransactionRef")
                         .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
@@ -416,8 +414,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("RoleName")
                         .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
@@ -425,8 +423,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                     b.HasKey("RoleId")
                         .HasName("PK__Role__8AFACE1A765443A9");
 
-                    b.HasIndex(new[] { "RoleName" }, "UQ__Role__8A2B61601A857A21")
+                    b.HasIndex("RoleName")
                         .IsUnique()
+                        .HasDatabaseName("IX_Role_RoleName")
                         .HasFilter("[RoleName] IS NOT NULL");
 
                     b.ToTable("Role", (string)null);
@@ -439,6 +438,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("Balance")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -448,31 +450,31 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FullName")
                         .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PasswordHash")
                         .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<Guid?>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Status")
                         .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
@@ -482,11 +484,39 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex(new[] { "Email" }, "UQ__User__A9D10534E5B949DF")
-                        .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
+                    b.HasIndex(new[] { "Email" }, "IX_User_Email");
 
                     b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.UserPackage", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ActivatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("ExpiredAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("RemainingListings")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(20)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("UserId", "FeeId")
+                        .HasName("PK_UserPackage");
+
+                    b.HasIndex("FeeId");
+
+                    b.ToTable("UserPackage", (string)null);
                 });
 
             modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.UserReputationReview", b =>
@@ -667,6 +697,25 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasConstraintName("FK__User__RoleId__6A30C649");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.UserPackage", b =>
+                {
+                    b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.FeeCommission", "FeeCommission")
+                        .WithMany()
+                        .HasForeignKey("FeeId")
+                        .IsRequired()
+                        .HasConstraintName("FK_UserPackage_FeeCommission");
+
+                    b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_UserPackage_User");
+
+                    b.Navigation("FeeCommission");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.UserReputationReview", b =>

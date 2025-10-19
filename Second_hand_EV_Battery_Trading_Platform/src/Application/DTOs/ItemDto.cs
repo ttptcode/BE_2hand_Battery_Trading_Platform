@@ -7,7 +7,8 @@ public class ItemDto
     public Guid ItemId { get; set; }
     public Guid? UserId { get; set; }
     public string? SerialNumber { get; set; }
-    public string? ItemType { get; set; }
+    public Guid? ItemTypeId { get; set; }
+    public string? ItemTypeName { get; set; }
     public string? Title { get; set; }
     public string? Brand { get; set; }
     public string? Model { get; set; }
@@ -34,8 +35,7 @@ public class CreateItemDto
     public string SerialNumber { get; set; } = string.Empty;
     
     [Required]
-    [StringLength(50)]
-    public string ItemType { get; set; } = string.Empty;
+    public Guid ItemTypeId { get; set; }
     
     [Required]
     [StringLength(255)]
@@ -79,8 +79,7 @@ public class UpdateItemDto
     [StringLength(100)]
     public string? SerialNumber { get; set; }
     
-    [StringLength(50)]
-    public string? ItemType { get; set; }
+    public Guid? ItemTypeId { get; set; }
     
     [StringLength(255)]
     public string? Title { get; set; }
@@ -123,7 +122,8 @@ public class ItemResponseDto
     public Guid ItemId { get; set; }
     public Guid? UserId { get; set; }
     public string? SerialNumber { get; set; }
-    public string? ItemType { get; set; }
+    public Guid? ItemTypeId { get; set; }
+    public string? ItemTypeName { get; set; }
     public string? Title { get; set; }
     public string? Brand { get; set; }
     public string? Model { get; set; }

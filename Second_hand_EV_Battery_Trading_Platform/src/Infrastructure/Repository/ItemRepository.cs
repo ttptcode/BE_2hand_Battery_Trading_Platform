@@ -17,6 +17,7 @@ public class ItemRepository : IItemRepository
     {
         return await _context.Items
             .Include(i => i.User)
+            .Include(i => i.ItemType)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
     }
@@ -25,6 +26,7 @@ public class ItemRepository : IItemRepository
     {
         return await _context.Items
             .Include(i => i.User)
+            .Include(i => i.ItemType)
             .Include(i => i.Listings)
             .Include(i => i.Conversations)
             .FirstOrDefaultAsync(i => i.ItemId == id);
@@ -34,6 +36,7 @@ public class ItemRepository : IItemRepository
     {
         return await _context.Items
             .Include(i => i.User)
+            .Include(i => i.ItemType)
             .FirstOrDefaultAsync(i => i.SerialNumber == serialNumber);
     }
 
@@ -41,6 +44,7 @@ public class ItemRepository : IItemRepository
     {
         return await _context.Items
             .Include(i => i.User)
+            .Include(i => i.ItemType)
             .Where(i => i.UserId == userId)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
@@ -50,6 +54,7 @@ public class ItemRepository : IItemRepository
     {
         return await _context.Items
             .Include(i => i.User)
+            .Include(i => i.ItemType)
             .Where(i => i.Status == status)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
@@ -59,6 +64,7 @@ public class ItemRepository : IItemRepository
     {
         var query = _context.Items
             .Include(i => i.User)
+            .Include(i => i.ItemType)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(title))
@@ -78,7 +84,7 @@ public class ItemRepository : IItemRepository
 
         if (!string.IsNullOrEmpty(itemType))
         {
-            query = query.Where(i => i.ItemType == itemType);
+            query = query.Where(i => i.ItemType!.Name == itemType);
         }
 
         return await query

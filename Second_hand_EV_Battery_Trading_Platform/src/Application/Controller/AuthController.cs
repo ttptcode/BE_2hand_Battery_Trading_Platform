@@ -101,7 +101,7 @@ public async Task<ActionResult<ApiResponse<object>>> Register([FromBody] Registe
             PasswordHash = PasswordHelper.HashPassword(dto.Password),
             CreatedAt = DateTime.UtcNow,
             Status = "1",
-            RoleId = Guid.Parse("D4A49C9E-DF1D-4CBB-A1A6-816FB453E5BD")
+            RoleId = Guid.Parse("95CE8882-9EF7-483E-AC10-5DA90CDF60DB")
         };
 
         await _userRepository.AddAsync(user);

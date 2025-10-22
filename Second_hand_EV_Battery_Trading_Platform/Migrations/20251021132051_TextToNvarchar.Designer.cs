@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 {
     [DbContext(typeof(OemEvWarrantyContext))]
-    partial class OemEvWarrantyContextModelSnapshot : ModelSnapshot
+    [Migration("20251021132051_TextToNvarchar")]
+    partial class TextToNvarchar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,11 +184,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                     b.Property<int?>("BatteryCapacity")
                         .HasColumnType("int");
 
-                    b.Property<string>("BatteryIncluded")
-                        .HasMaxLength(100)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("Brand")
                         .HasMaxLength(100)
                         .IsUnicode(true)
@@ -193,11 +191,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<int?>("Capacity")
                         .HasColumnType("int");
-
-                    b.Property<string>("Color")
-                        .HasMaxLength(50)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Condition")
                         .HasMaxLength(50)
@@ -210,23 +203,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                     b.Property<int?>("Cycles")
                         .HasColumnType("int");
 
-                    b.Property<string>("Fuel")
-                        .HasMaxLength(50)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Gearbox")
-                        .HasMaxLength(50)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<Guid?>("ItemTypeId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("LicensePlate")
-                        .HasMaxLength(20)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int?>("Mileage")
                         .HasColumnType("int");
@@ -236,16 +214,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Origin")
-                        .HasMaxLength(100)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18, 2)");
-
-                    b.Property<int?>("Seat")
-                        .HasColumnType("int");
 
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(100)
@@ -256,11 +226,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasMaxLength(20)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Style")
-                        .HasMaxLength(100)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Title")
                         .HasMaxLength(255)
@@ -277,9 +242,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasMaxLength(1000)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<decimal?>("Weight")
-                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<int?>("Year")
                         .HasColumnType("int");

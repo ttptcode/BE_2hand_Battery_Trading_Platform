@@ -17,6 +17,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
         {
             return await _context.Conversations
                                  .Include(c => c.Messages)
+                                 .Include(c => c.Listing)
+                                 .ThenInclude(l => l.Item)
                                  .FirstOrDefaultAsync(c => c.ConversationId == id);
         }
 
@@ -26,8 +28,20 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
                                  .Where(c => c.SellerId == userId || c.BuyerId == userId)
                                  .Include(c => c.Seller)
                                  .Include(c => c.Buyer)
+                                 .Include(c => c.Listing)
+                                 .ThenInclude(l => l.Item)
                                  .Include(c => c.Messages.OrderByDescending(m => m.CreatedAt))
                                  .ToListAsync();
+        }
+
+        public async Task<Conversation?> GetByListingIdAsync(Guid listingId, Guid buyerId)
+        {
+            return await _context.Conversations
+                                 .Include(c => c.Listing)
+                                 .ThenInclude(l => l.Item)
+                                 .Include(c => c.Seller)
+                                 .Include(c => c.Buyer)
+                                 .FirstOrDefaultAsync(c => c.ListingId == listingId && c.BuyerId == buyerId);
         }
 
         public async Task AddAsync(Conversation conversation)

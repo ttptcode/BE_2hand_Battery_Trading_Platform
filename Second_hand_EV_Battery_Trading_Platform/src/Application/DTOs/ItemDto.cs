@@ -19,7 +19,17 @@ public class ItemDto
     public int? Cycles { get; set; }
     public string? Condition { get; set; }
     public decimal? Price { get; set; }
-    public string? Images { get; set; }
+    public List<string> ImageUrls { get; set; } = new();
+    public string? VideoUrl { get; set; }
+    public string? Style { get; set; }
+    public string? Color { get; set; }
+    public int? Seat { get; set; }
+    public string? BatteryIncluded { get; set; }
+    public decimal? Weight { get; set; }
+    public string? LicensePlate { get; set; }
+    public string? Origin { get; set; }
+    public string? Fuel { get; set; }
+    public string? Gearbox { get; set; }
     public string? Status { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
@@ -68,7 +78,32 @@ public class CreateItemDto
     [Range(0, double.MaxValue)]
     public decimal? Price { get; set; }
     
-    public string? Images { get; set; }
+    [StringLength(100)]
+    public string? Style { get; set; }
+    
+    [StringLength(50)]
+    public string? Color { get; set; }
+    
+    [Range(1, 50)]
+    public int? Seat { get; set; }
+    
+    [StringLength(100)]
+    public string? BatteryIncluded { get; set; }
+    
+    [Range(0, double.MaxValue)]
+    public decimal? Weight { get; set; }
+    
+    [StringLength(20)]
+    public string? LicensePlate { get; set; }
+    
+    [StringLength(100)]
+    public string? Origin { get; set; }
+    
+    [StringLength(50)]
+    public string? Fuel { get; set; }
+    
+    [StringLength(50)]
+    public string? Gearbox { get; set; }
     
     [StringLength(20)]
     public string Status { get; set; } = "Active";
@@ -111,7 +146,32 @@ public class UpdateItemDto
     [Range(0, double.MaxValue)]
     public decimal? Price { get; set; }
     
-    public string? Images { get; set; }
+    [StringLength(100)]
+    public string? Style { get; set; }
+    
+    [StringLength(50)]
+    public string? Color { get; set; }
+    
+    [Range(1, 50)]
+    public int? Seat { get; set; }
+    
+    [StringLength(100)]
+    public string? BatteryIncluded { get; set; }
+    
+    [Range(0, double.MaxValue)]
+    public decimal? Weight { get; set; }
+    
+    [StringLength(20)]
+    public string? LicensePlate { get; set; }
+    
+    [StringLength(100)]
+    public string? Origin { get; set; }
+    
+    [StringLength(50)]
+    public string? Fuel { get; set; }
+    
+    [StringLength(50)]
+    public string? Gearbox { get; set; }
     
     [StringLength(20)]
     public string? Status { get; set; }
@@ -134,7 +194,17 @@ public class ItemResponseDto
     public int? Cycles { get; set; }
     public string? Condition { get; set; }
     public decimal? Price { get; set; }
-    public string? Images { get; set; }
+    public List<string> ImageUrls { get; set; } = new();
+    public string? VideoUrl { get; set; }
+    public string? Style { get; set; }
+    public string? Color { get; set; }
+    public int? Seat { get; set; }
+    public string? BatteryIncluded { get; set; }
+    public decimal? Weight { get; set; }
+    public string? LicensePlate { get; set; }
+    public string? Origin { get; set; }
+    public string? Fuel { get; set; }
+    public string? Gearbox { get; set; }
     public string? Status { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }

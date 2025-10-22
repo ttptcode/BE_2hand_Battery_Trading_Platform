@@ -47,7 +47,6 @@ public class CreateListingDto
     // Thanh toán/gói
     public Guid? FeeId { get; set; } // VIP package (nếu có)
 
-    public string? PaymentMethod { get; set; } // "Wallet" | "Gateway"
 }
 
 public class UpdateListingDto

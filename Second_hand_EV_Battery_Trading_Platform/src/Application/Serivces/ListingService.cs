@@ -10,20 +10,17 @@ public class ListingService : IListingService
     private readonly IItemRepository _itemRepo;
     private readonly IUserRepository _userRepo;
     private readonly IFeeCommissionRepository _feeRepo;
-    private readonly IPaymentTransactionRepository _payRepo;
 
     public ListingService(
         IListingRepository listingRepo,
         IItemRepository itemRepo,
         IUserRepository userRepo,
-        IFeeCommissionRepository feeRepo,
-        IPaymentTransactionRepository payRepo)
+        IFeeCommissionRepository feeRepo)
     {
         _listingRepo = listingRepo;
         _itemRepo = itemRepo;
         _userRepo = userRepo;
         _feeRepo = feeRepo;
-        _payRepo = payRepo;
     }
 
     public async Task<ListingResponseDto> CreateListingWithPaymentAsync(CreateListingDto dto)
@@ -31,6 +28,12 @@ public class ListingService : IListingService
         // Validate user & item
         var user = await _userRepo.GetByIdAsync(dto.UserId) ?? throw new InvalidOperationException("User not found");
         var item = await _itemRepo.GetByIdAsync(dto.ItemId) ?? throw new InvalidOperationException("Item not found");
+
+        // Validate item must have at least 5 images
+        if (item.Images == null || item.Images.Count < 5)
+        {
+            throw new InvalidOperationException("Item must have at least 5 images to create a listing");
+        }
 
         // Validate listing params
         if (dto.ListingType == ListingTypeDto.BuyNow)
@@ -47,94 +50,19 @@ public class ListingService : IListingService
         FeeCommission? fee = null;
         if (dto.FeeId.HasValue)
         {
-            fee = await _feeRepo.GetByIdAsync(dto.FeeId.Value) ??
-                  throw new InvalidOperationException("Fee/Package not found");
+            // Fee is optional; if provided attempt to load but do not enforce payment-related rules here
+            fee = await _feeRepo.GetByIdAsync(dto.FeeId.Value);
         }
 
-        // Decide payment path
-        decimal chargeAmount = 0;
-        bool usingVip = false;
-        DateTime? vipWindowStart = null;
-
-        if (fee != null && string.Equals(fee.FeeType, "VIP", StringComparison.OrdinalIgnoreCase))
-        {
-            var days = fee.PackageDurationDays ?? 0;
-            usingVip = true;
-            vipWindowStart = DateTime.UtcNow.AddDays(-days);
-
-            // must have paid VIP package and still active
-            var hasActive = await _payRepo.HasActivePaidVipAsync(user.UserId, fee.FeeId, days);
-            if (!hasActive) throw new InvalidOperationException("VIP package not active or expired");
-
-            // check quota
-            var used = await _payRepo.CountListingsWithinVipWindowAsync(user.UserId, fee.FeeId, vipWindowStart.Value);
-            var quota = fee.MaxListings ?? 0;
-            if (used >= quota) throw new InvalidOperationException("VIP package quota exceeded");
-        }
-        else if (fee != null && string.Equals(fee.FeeType, "Post", StringComparison.OrdinalIgnoreCase))
-        {
-            // normal per-listing fee
-            chargeAmount = fee.Amount ?? 0;
-        }
-        else
-        {
-            // No fee provided -> treat as normal per-listing fee requires a default "Post" fee config
-            throw new InvalidOperationException("FeeId is required (VIP or Post)");
-        }
-
-        // Handle wallet payment if needed
-        if (!usingVip && chargeAmount > 0)
-        {
-            if (string.Equals(dto.PaymentMethod, "Wallet", StringComparison.OrdinalIgnoreCase))
-            {
-                if (user.Balance < chargeAmount)
-                    throw new InvalidOperationException("Insufficient wallet balance. Please top up or choose payment gateway.");
-
-                // Deduct
-                user.Balance -= chargeAmount;
-
-                // Record transaction
-                await _payRepo.AddAsync(new PaymentTransaction
-                {
-                    UserId = user.UserId,
-                    FeeId = fee!.FeeId,
-                    Amount = chargeAmount,
-                    PaymentMethod = "Wallet",
-                    PaymentStatus = "Paid",
-                    TransactionRef = $"WALLET-{Guid.NewGuid()}",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-            else if (string.Equals(dto.PaymentMethod, "Gateway", StringComparison.OrdinalIgnoreCase))
-            {
-                // Ở đây tạm thời coi như đã thanh toán thành công (tích hợp VNPAY/Momo về sau)
-                await _payRepo.AddAsync(new PaymentTransaction
-                {
-                    UserId = user.UserId,
-                    FeeId = fee!.FeeId,
-                    Amount = chargeAmount,
-                    PaymentMethod = "Gateway",
-                    PaymentStatus = "Paid",
-                    TransactionRef = $"GATE-{Guid.NewGuid()}",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-            else
-            {
-                throw new InvalidOperationException("PaymentMethod must be Wallet or Gateway");
-            }
-        }
-
-        // Compute listing duration
+        // Compute listing duration. If a package duration is provided on the fee and no explicit EndDate is set,
+        // use that duration. Otherwise honor dto.EndDate or leave null.
         var start = dto.StartDate ?? DateTime.UtcNow;
         DateTime? end = dto.EndDate;
-        if (usingVip)
+        if (end == null && fee?.PackageDurationDays != null)
         {
-            var dur = fee!.PackageDurationDays ?? 0;
-            // Tin được giữ trong thời hạn gói
-            end = start.AddDays(dur);
+            var dur = fee.PackageDurationDays ?? 0;
+            if (dur > 0)
+                end = start.AddDays(dur);
         }
 
         var listing = new Listing

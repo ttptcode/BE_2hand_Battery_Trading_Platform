@@ -7,7 +7,7 @@ public partial class Conversation
 {
     public Guid ConversationId { get; set; }
 
-    public Guid? ItemId { get; set; }
+    public Guid? ListingId { get; set; }
 
     public Guid? SellerId { get; set; }
 
@@ -21,7 +21,7 @@ public partial class Conversation
 
     public virtual User? Buyer { get; set; }
 
-    public virtual Item? Item { get; set; }
+    public virtual Listing? Listing { get; set; }
 
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
 

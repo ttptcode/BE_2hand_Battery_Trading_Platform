@@ -9,7 +9,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "User")]
 public class ListingsController : ControllerBase
 {
     private readonly IBiddingService _biddingService;

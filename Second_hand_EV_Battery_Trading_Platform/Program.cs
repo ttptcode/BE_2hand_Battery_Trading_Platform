@@ -38,31 +38,43 @@ builder.Services.AddAuthentication(options =>
     };
 
     // ✅ Xử lý lỗi JWT bằng ApiResponse
+    // ...
     options.Events = new JwtBearerEvents
     {
         OnChallenge = context =>
         {
+            // 1. Dừng các xử lý mặc định. ĐÂY LÀ DÒNG QUAN TRỌNG NHẤT!
             context.HandleResponse();
+
+            // 2. Bây giờ bạn có thể an toàn tùy chỉnh response
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             context.Response.ContentType = "application/json";
             var result = ApiResponse<object>.ErrorResult("Unauthorized access - Invalid or missing token");
+
+            // Trả về Task từ việc ghi response
             return context.Response.WriteAsJsonAsync(result);
         },
         OnForbidden = context =>
         {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            // Tương tự, dừng xử lý mặc định
+
             context.Response.ContentType = "application/json";
-            var result = ApiResponse<object>.ErrorResult("Forbidden - You do not have permission to access this resource");
+            var result = ApiResponse<object>.ErrorResult("Forbidden: You do not have permission to access this resource.");
             return context.Response.WriteAsJsonAsync(result);
         },
         OnAuthenticationFailed = context =>
         {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            context.Response.ContentType = "application/json";
-            var result = ApiResponse<object>.ErrorResult("Authentication failed", context.Exception.Message);
-            return context.Response.WriteAsJsonAsync(result);
+            // Tương tự, dừng xử lý mặc định
+            // Ghi log lỗi để debug.
+            // Bạn có thể dùng ILogger ở đây nếu đã inject.
+            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+
+            // KHÔNG làm gì với response ở đây.
+            // Pipeline sẽ tự động chuyển sang OnChallenge để xử lý response 401.
+            return Task.CompletedTask;
         }
     };
+    
 });
 
 
@@ -139,11 +151,34 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 // 🧩 4️⃣ Controllers
 builder.Services.AddControllers();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()   // Cho phép mọi tên miền
+            .AllowAnyMethod()   // Cho phép mọi phương thức (GET, POST, PUT, DELETE, ...)
+            .AllowAnyHeader();  // Cho phép mọi header
+    });
+});
+
 var app = builder.Build();
 
+app.UseHttpsRedirection();
+
+// Serve static files from wwwroot for uploaded images
+app.UseStaticFiles();
+
+// 🌐 Sử dụng CORS
+app.UseCors("AllowAll");
+
+// 🔒 Authentication luôn trước Authorization
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Bật Swagger sau Authentication để tránh conflict
 // 🧰 5️⃣ Pipeline middleware
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
@@ -154,13 +189,8 @@ if (app.Environment.IsDevelopment())
         options.OAuthAppName("Swagger Keycloak Login");
         options.OAuthUsePkce();
     });
-}
 
-app.UseHttpsRedirection();
 
-// 🔒 Authentication luôn trước Authorization
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 

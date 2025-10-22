@@ -26,6 +26,7 @@ public partial class OemEvWarrantyContext : DbContext
     public virtual DbSet<FeeCommission> FeeCommissions { get; set; }
 
     public virtual DbSet<Item> Items { get; set; }
+    public virtual DbSet<ItemImage> ItemImages { get; set; }
 
     public virtual DbSet<ItemType> ItemTypes { get; set; }
 
@@ -108,9 +109,9 @@ public partial class OemEvWarrantyContext : DbContext
                 .HasForeignKey(d => d.BuyerId)
                 .HasConstraintName("FK__Conversat__Buyer__74AE54BC");
 
-            entity.HasOne(d => d.Item).WithMany(p => p.Conversations)
-                .HasForeignKey(d => d.ItemId)
-                .HasConstraintName("FK__Conversat__ItemI__72C60C4A");
+            entity.HasOne(d => d.Listing).WithMany(p => p.Conversations)
+                .HasForeignKey(d => d.ListingId)
+                .HasConstraintName("FK__Conversat__Listi__72C60C4A");
 
             entity.HasOne(d => d.Seller).WithMany(p => p.ConversationSellers)
                 .HasForeignKey(d => d.SellerId)
@@ -152,7 +153,6 @@ public partial class OemEvWarrantyContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(true);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Images).HasColumnType("text");
             entity.Property(e => e.ItemTypeId).HasColumnType("uniqueidentifier");
             entity.Property(e => e.Model)
                 .HasMaxLength(100)
@@ -167,6 +167,31 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
                 .IsUnicode(true);
+            entity.Property(e => e.VideoUrl)
+                .HasMaxLength(1000)
+                .IsUnicode(true);
+            entity.Property(e => e.Style)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+            entity.Property(e => e.Color)
+                .HasMaxLength(50)
+                .IsUnicode(true);
+            entity.Property(e => e.BatteryIncluded)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+            entity.Property(e => e.Weight).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.LicensePlate)
+                .HasMaxLength(20)
+                .IsUnicode(true);
+            entity.Property(e => e.Origin)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+            entity.Property(e => e.Fuel)
+                .HasMaxLength(50)
+                .IsUnicode(true);
+            entity.Property(e => e.Gearbox)
+                .HasMaxLength(50)
+                .IsUnicode(true);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.User).WithMany(p => p.Items)
@@ -176,6 +201,24 @@ public partial class OemEvWarrantyContext : DbContext
             entity.HasOne(d => d.ItemType).WithMany(p => p.Items)
                 .HasForeignKey(d => d.ItemTypeId)
                 .HasConstraintName("FK__Item__ItemTypeId");
+
+            entity.HasMany(d => d.Images)
+                .WithOne(p => p.Item!)
+                .HasForeignKey(p => p.ItemId)
+                .HasConstraintName("FK__ItemImage__ItemId");
+        });
+
+        modelBuilder.Entity<ItemImage>(entity =>
+        {
+            entity.HasKey(e => e.ItemImageId).HasName("PK__ItemImag__ItemImageId");
+
+            entity.ToTable("ItemImage");
+
+            entity.Property(e => e.ItemImageId).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Url)
+                .HasMaxLength(1000)
+                .IsUnicode(true);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<ItemType>(entity =>
@@ -238,7 +281,8 @@ public partial class OemEvWarrantyContext : DbContext
             entity.ToTable("Message");
 
             entity.Property(e => e.MessageId).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.Content).HasColumnType("text");
+            // Use nvarchar(max) to support Unicode (Vietnamese) characters
+            entity.Property(e => e.Content).HasColumnType("nvarchar(max)");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Conversation).WithMany(p => p.Messages)

@@ -24,7 +24,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller
         /// Lấy danh sách tin nhắn trong 1 cuộc hội thoại
         /// </summary>
         [HttpGet("{conversationId}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult<ApiResponse<object>>> GetMessages(Guid conversationId)
         {
             try

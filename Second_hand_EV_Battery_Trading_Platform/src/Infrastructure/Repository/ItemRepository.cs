@@ -18,6 +18,7 @@ public class ItemRepository : IItemRepository
         return await _context.Items
             .Include(i => i.User)
             .Include(i => i.ItemType)
+            .Include(i => i.Images)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
     }
@@ -27,8 +28,9 @@ public class ItemRepository : IItemRepository
         return await _context.Items
             .Include(i => i.User)
             .Include(i => i.ItemType)
+            .Include(i => i.Images)
             .Include(i => i.Listings)
-            .Include(i => i.Conversations)
+            
             .FirstOrDefaultAsync(i => i.ItemId == id);
     }
 
@@ -37,6 +39,7 @@ public class ItemRepository : IItemRepository
         return await _context.Items
             .Include(i => i.User)
             .Include(i => i.ItemType)
+            .Include(i => i.Images)
             .FirstOrDefaultAsync(i => i.SerialNumber == serialNumber);
     }
 
@@ -45,6 +48,7 @@ public class ItemRepository : IItemRepository
         return await _context.Items
             .Include(i => i.User)
             .Include(i => i.ItemType)
+            .Include(i => i.Images)
             .Where(i => i.UserId == userId)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
@@ -55,6 +59,7 @@ public class ItemRepository : IItemRepository
         return await _context.Items
             .Include(i => i.User)
             .Include(i => i.ItemType)
+            .Include(i => i.Images)
             .Where(i => i.Status == status)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
@@ -65,6 +70,7 @@ public class ItemRepository : IItemRepository
         var query = _context.Items
             .Include(i => i.User)
             .Include(i => i.ItemType)
+            .Include(i => i.Images)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(title))
@@ -85,6 +91,65 @@ public class ItemRepository : IItemRepository
         if (!string.IsNullOrEmpty(itemType))
         {
             query = query.Where(i => i.ItemType!.Name == itemType);
+        }
+
+        return await query
+            .OrderByDescending(i => i.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Item>> SearchAdvancedAsync(string? title, string? brand, string? model, string? itemType, 
+        string? style, string? color, string? origin, string? fuel, string? gearbox)
+    {
+        var query = _context.Items
+            .Include(i => i.User)
+            .Include(i => i.ItemType)
+            .Include(i => i.Images)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(title))
+        {
+            query = query.Where(i => i.Title!.Contains(title));
+        }
+
+        if (!string.IsNullOrEmpty(brand))
+        {
+            query = query.Where(i => i.Brand!.Contains(brand));
+        }
+
+        if (!string.IsNullOrEmpty(model))
+        {
+            query = query.Where(i => i.Model!.Contains(model));
+        }
+
+        if (!string.IsNullOrEmpty(itemType))
+        {
+            query = query.Where(i => i.ItemType!.Name == itemType);
+        }
+
+        if (!string.IsNullOrEmpty(style))
+        {
+            query = query.Where(i => i.Style!.Contains(style));
+        }
+
+        if (!string.IsNullOrEmpty(color))
+        {
+            query = query.Where(i => i.Color!.Contains(color));
+        }
+
+        if (!string.IsNullOrEmpty(origin))
+        {
+            query = query.Where(i => i.Origin!.Contains(origin));
+        }
+
+        if (!string.IsNullOrEmpty(fuel))
+        {
+            query = query.Where(i => i.Fuel!.Contains(fuel));
+        }
+
+        if (!string.IsNullOrEmpty(gearbox))
+        {
+            query = query.Where(i => i.Gearbox!.Contains(gearbox));
         }
 
         return await query
@@ -137,5 +202,25 @@ public class ItemRepository : IItemRepository
         }
 
         return await query.AnyAsync();
+    }
+
+    public async Task AddImagesAsync(Guid itemId, IEnumerable<ItemImage> images)
+    {
+        foreach (var image in images)
+        {
+            _context.ItemImages.Add(image);
+        }
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateVideoUrlAsync(Guid itemId, string videoUrl)
+    {
+        var item = await _context.Items.FindAsync(itemId);
+        if (item != null)
+        {
+            item.VideoUrl = videoUrl;
+            item.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
     }
 }

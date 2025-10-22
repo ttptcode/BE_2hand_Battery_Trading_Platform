@@ -42,4 +42,6 @@ public partial class Listing
     public virtual ICollection<PaymentTransaction> PaymentTransactions { get; set; } = new List<PaymentTransaction>();
 
     public virtual User? User { get; set; }
+
+    public virtual ICollection<Conversation> Conversations { get; set; } = new List<Conversation>();
 }

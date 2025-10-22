@@ -33,21 +33,42 @@ public partial class Item
 
     public decimal? Price { get; set; }
 
-    public string? Images { get; set; }
+    // Images moved to ItemImage entity (one-to-many)
 
     public string? Status { get; set; }
+
+    public string? VideoUrl { get; set; }
+
+    public string? Style { get; set; }
+
+    public string? Color { get; set; }
+
+    public int? Seat { get; set; }
+
+    public string? BatteryIncluded { get; set; }
+
+    public decimal? Weight { get; set; }
+
+    public string? LicensePlate { get; set; }
+
+    public string? Origin { get; set; }
+
+    public string? Fuel { get; set; }
+
+    public string? Gearbox { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual ICollection<Conversation> Conversations { get; set; } = new List<Conversation>();
 
     public virtual ICollection<Listing> Listings { get; set; } = new List<Listing>();
 
     public virtual User? User { get; set; }
 
     public virtual ItemType? ItemType { get; set; }
+
+    public virtual ICollection<ItemImage> Images { get; set; } = new List<ItemImage>();
 
     public virtual ICollection<UserReputationReview> UserReputationReviews { get; set; } = new List<UserReputationReview>();
 }

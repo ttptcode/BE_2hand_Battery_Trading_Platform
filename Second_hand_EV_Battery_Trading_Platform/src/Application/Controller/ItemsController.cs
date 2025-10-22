@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces;
+using Microsoft.AspNetCore.Http;
 
 namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Controller;
 
@@ -11,11 +12,13 @@ public class ItemsController : ControllerBase
 {
     private readonly IItemService _itemService;
     private readonly ILogger<ItemsController> _logger;
+    private readonly IWebHostEnvironment _env;
 
-    public ItemsController(IItemService itemService, ILogger<ItemsController> logger)
+    public ItemsController(IItemService itemService, ILogger<ItemsController> logger, IWebHostEnvironment env)
     {
         _itemService = itemService;
         _logger = logger;
+        _env = env;
     }
 
     /// <summary>
@@ -235,6 +238,72 @@ public class ItemsController : ControllerBase
         {
             _logger.LogError(ex, "Error occurred while checking if item {ItemId} exists", id);
             return StatusCode(500, ApiResponse.ErrorResult("Internal server error occurred while checking item existence", ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Upload up to 10 images for an item (multipart/form-data)
+    /// </summary>
+    [HttpPost("{id}/images")] 
+    [Authorize(Roles = "User")]
+    public async Task<ActionResult<ApiResponse<ItemResponseDto>>> UploadImages(Guid id, List<IFormFile> files)
+    {
+        try
+        {
+            if (files == null || files.Count == 0)
+                return BadRequest(ApiResponse<ItemResponseDto>.ErrorResult("No files uploaded"));
+
+            // Base URL to build absolute URLs for images
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+            var result = await _itemService.UploadImagesAsync(id, files, baseUrl, _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
+            if (result == null)
+                return NotFound(ApiResponse<ItemResponseDto>.ErrorResult($"Item with ID {id} not found"));
+
+            return Ok(ApiResponse<ItemResponseDto>.SuccessResult(result, "Images uploaded successfully (max 10 enforced)"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while uploading images for item {ItemId}", id);
+            return StatusCode(500, ApiResponse<ItemResponseDto>.ErrorResult("Internal server error occurred while uploading images", ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Upload video for an item (multipart/form-data)
+    /// </summary>
+    [HttpPost("{id}/video")]
+    [Authorize(Roles = "User")]
+    public async Task<ActionResult<ApiResponse<ItemResponseDto>>> UploadVideo(Guid id, IFormFile video)
+    {
+        try
+        {
+            if (video == null || video.Length == 0)
+                return BadRequest(ApiResponse<ItemResponseDto>.ErrorResult("No video file uploaded"));
+
+            // Validate file type
+            var allowedExtensions = new[] { ".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm" };
+            var fileExtension = Path.GetExtension(video.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+                return BadRequest(ApiResponse<ItemResponseDto>.ErrorResult("Invalid video format. Allowed: mp4, avi, mov, wmv, flv, webm"));
+
+            // Validate file size (max 100MB)
+            if (video.Length > 100 * 1024 * 1024)
+                return BadRequest(ApiResponse<ItemResponseDto>.ErrorResult("Video file too large. Maximum size is 100MB"));
+
+            // Base URL to build absolute URL for video
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+            var result = await _itemService.UploadVideoAsync(id, video, baseUrl, _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
+            if (result == null)
+                return NotFound(ApiResponse<ItemResponseDto>.ErrorResult($"Item with ID {id} not found"));
+
+            return Ok(ApiResponse<ItemResponseDto>.SuccessResult(result, "Video uploaded successfully"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while uploading video for item {ItemId}", id);
+            return StatusCode(500, ApiResponse<ItemResponseDto>.ErrorResult("Internal server error occurred while uploading video", ex.Message));
         }
     }
 }

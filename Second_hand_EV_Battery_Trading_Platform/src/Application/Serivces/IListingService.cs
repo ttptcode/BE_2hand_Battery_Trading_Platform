@@ -20,7 +20,18 @@ public interface IListingService
 
     Task<ListingResponseDto> CreateListingWithPaymentAsync(CreateListingDto dto);
 
+    Task<ListingResponseDto> CreateItemWithListingAsync(Guid userId, CreateItemWithListingDto dto, string baseUrl, string webRootPath);
+
     Task<ListingResponseDto?> UpdateListingAsync(UpdateListingDto updateDto);
 
+    Task<ListingResponseDto?> ToggleListingStatusAsync(Guid listingId);
+
     Task<bool> DeleteListingAsync(Guid listingId);
+
+    Task<ListingResponseDto?> UpdateItemWithListingAsync(Guid userId, UpdateItemWithListingDto dto, string baseUrl, string webRootPath);
+
+    Task<bool> DeleteItemWithListingAsync(Guid listingId);
+
+    // Toggle between Active and InActive
+    Task<ListingResponseDto?> ToggleListingActiveInactiveAsync(Guid listingId);
 }

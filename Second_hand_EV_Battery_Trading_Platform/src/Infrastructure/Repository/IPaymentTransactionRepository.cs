@@ -7,4 +7,7 @@ public interface IPaymentTransactionRepository
     Task<PaymentTransaction> AddAsync(PaymentTransaction tx);
     Task<bool> HasActivePaidVipAsync(Guid userId, Guid feeId, int packageDurationDays);
     Task<int> CountListingsWithinVipWindowAsync(Guid userId, Guid feeId, DateTime windowStart);
+    Task<PaymentTransaction?> GetByTransactionRefAsync(string transactionRef);
+    Task UpdateAsync(PaymentTransaction payment);
+    Task<IEnumerable<PaymentTransaction>> GetPendingPaymentsAsync();
 }

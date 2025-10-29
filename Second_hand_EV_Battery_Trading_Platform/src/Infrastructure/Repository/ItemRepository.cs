@@ -30,7 +30,6 @@ public class ItemRepository : IItemRepository
             .Include(i => i.ItemType)
             .Include(i => i.Images)
             .Include(i => i.Listings)
-            
             .FirstOrDefaultAsync(i => i.ItemId == id);
     }
 
@@ -99,7 +98,8 @@ public class ItemRepository : IItemRepository
     }
 
     public async Task<IEnumerable<Item>> SearchAdvancedAsync(string? title, string? brand, string? model, string? itemType, 
-        string? style, string? color, string? origin, string? fuel, string? gearbox)
+        string? style, string? color, string? origin, string? fuel, string? gearbox,
+        string? version, string? engine, string? batteryType, string? voltage, string? frameMaterial, string? frameSize, string? partType)
     {
         var query = _context.Items
             .Include(i => i.User)
@@ -152,6 +152,22 @@ public class ItemRepository : IItemRepository
             query = query.Where(i => i.Gearbox!.Contains(gearbox));
         }
 
+        // new filters
+        if (!string.IsNullOrEmpty(version))
+            query = query.Where(i => i.Version!.Contains(version));
+        if (!string.IsNullOrEmpty(engine))
+            query = query.Where(i => i.Engine!.Contains(engine));
+        if (!string.IsNullOrEmpty(batteryType))
+            query = query.Where(i => i.BatteryType!.Contains(batteryType));
+        if (!string.IsNullOrEmpty(voltage))
+            query = query.Where(i => i.Voltage!.Contains(voltage));
+        if (!string.IsNullOrEmpty(frameMaterial))
+            query = query.Where(i => i.FrameMaterial!.Contains(frameMaterial));
+        if (!string.IsNullOrEmpty(frameSize))
+            query = query.Where(i => i.FrameSize!.Contains(frameSize));
+        if (!string.IsNullOrEmpty(partType))
+            query = query.Where(i => i.PartType!.Contains(partType));
+
         return await query
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
@@ -195,13 +211,18 @@ public class ItemRepository : IItemRepository
     public async Task<bool> SerialNumberExistsAsync(string serialNumber, Guid? excludeId = null)
     {
         var query = _context.Items.Where(i => i.SerialNumber == serialNumber);
-        
+
         if (excludeId.HasValue)
         {
             query = query.Where(i => i.ItemId != excludeId.Value);
         }
 
         return await query.AnyAsync();
+    }
+
+    public async Task<bool> ItemTypeExistsAsync(Guid itemTypeId)
+    {
+        return await _context.ItemTypes.AnyAsync(it => it.ItemTypeId == itemTypeId);
     }
 
     public async Task AddImagesAsync(Guid itemId, IEnumerable<ItemImage> images)
@@ -222,5 +243,50 @@ public class ItemRepository : IItemRepository
             item.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
+    }
+    public async Task DeleteAllImagesByItemIdAsync(Guid itemId)
+{
+    // Tìm tất cả các bản ghi ItemImage có ItemId tương ứng
+    var imagesToDelete = await _context.ItemImages
+                                       .Where(img => img.ItemId == itemId)
+                                       .ToListAsync();
+
+    if (imagesToDelete.Any())
+    {
+        // Xóa chúng khỏi context
+        _context.ItemImages.RemoveRange(imagesToDelete);
+        
+        // Lưu thay đổi vào database
+        await _context.SaveChangesAsync();
+    }
+}
+
+    public async Task DeleteImageAsync(Guid imageId)
+    {
+        var image = await _context.ItemImages.FindAsync(imageId);
+        if (image != null)
+        {
+            _context.ItemImages.Remove(image);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    // Trong ItemRepository.cs
+    public async Task<Item?> GetByIdWithImagesAsync(Guid itemId)
+    {
+        return await _context.Items
+                             .Include(i => i.Images) // Eager loading
+                             .FirstOrDefaultAsync(i => i.ItemId == itemId);
+    }
+
+    public async Task DeleteImagesAsync(IEnumerable<ItemImage> images)
+    {
+        _context.ItemImages.RemoveRange(images);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<int> GetImageCountAsync(Guid itemId)
+    {
+        return await _context.ItemImages.CountAsync(i => i.ItemId == itemId);
     }
 }

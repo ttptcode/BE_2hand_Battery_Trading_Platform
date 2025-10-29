@@ -8,5 +8,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces
         Task<IEnumerable<Message>> GetMessagesAsync(Guid conversationId);
         Task<Message> SendMessageAsync(Guid conversationId, Guid senderId, string content);
         Task<Conversation> CreateConversationAsync(Guid listingId, Guid buyerId);
+        Task<Conversation?> GetConversationByIdAsync(Guid conversationId);
+        Task<bool> MarkMessageAsReadAsync(Guid messageId, Guid userId);
     }
 }

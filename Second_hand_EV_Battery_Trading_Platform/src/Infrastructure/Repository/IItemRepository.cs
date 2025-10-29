@@ -10,13 +10,20 @@ public interface IItemRepository
     Task<IEnumerable<Item>> GetByUserIdAsync(Guid userId);
     Task<IEnumerable<Item>> GetByStatusAsync(string status);
     Task<IEnumerable<Item>> SearchAsync(string? title, string? brand, string? model, string? itemType);
-    Task<IEnumerable<Item>> SearchAdvancedAsync(string? title, string? brand, string? model, string? itemType, 
-        string? style, string? color, string? origin, string? fuel, string? gearbox);
+    Task<IEnumerable<Item>> SearchAdvancedAsync(string? title, string? brand, string? model, string? itemType,
+        string? style, string? color, string? origin, string? fuel, string? gearbox,
+        string? version, string? engine, string? batteryType, string? voltage, string? frameMaterial, string? frameSize, string? partType);
     Task<Item> CreateAsync(Item item);
     Task<Item> UpdateAsync(Item item);
     Task<bool> DeleteAsync(Guid id);
     Task<bool> ExistsAsync(Guid id);
     Task<bool> SerialNumberExistsAsync(string serialNumber, Guid? excludeId = null);
+    Task<bool> ItemTypeExistsAsync(Guid itemTypeId);
     Task AddImagesAsync(Guid itemId, IEnumerable<ItemImage> images);
     Task UpdateVideoUrlAsync(Guid itemId, string videoUrl);
+    Task DeleteAllImagesByItemIdAsync(Guid itemId);
+    Task DeleteImageAsync(Guid imageId);
+    Task<Item?> GetByIdWithImagesAsync(Guid itemId);
+    Task DeleteImagesAsync(IEnumerable<ItemImage> images);
+    Task<int> GetImageCountAsync(Guid itemId);
 }

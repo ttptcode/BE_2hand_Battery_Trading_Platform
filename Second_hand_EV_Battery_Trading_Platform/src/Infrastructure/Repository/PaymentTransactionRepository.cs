@@ -32,4 +32,23 @@ public class PaymentTransactionRepository : IPaymentTransactionRepository
         return await _ctx.Listings.CountAsync(l =>
             l.UserId == userId && l.FeeId == feeId && l.CreatedAt >= windowStart);
     }
+
+    public async Task<PaymentTransaction?> GetByTransactionRefAsync(string transactionRef)
+    {
+        return await _ctx.PaymentTransactions
+            .FirstOrDefaultAsync(t => t.TransactionRef == transactionRef);
+    }
+
+    public async Task UpdateAsync(PaymentTransaction payment)
+    {
+        _ctx.PaymentTransactions.Update(payment);
+        await _ctx.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<PaymentTransaction>> GetPendingPaymentsAsync()
+    {
+        return await _ctx.PaymentTransactions
+            .Where(t => t.PaymentStatus == "Pending")
+            .ToListAsync();
+    }
 }

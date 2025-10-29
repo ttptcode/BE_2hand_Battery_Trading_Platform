@@ -21,11 +21,13 @@ public partial class Item
 
     public int? Year { get; set; }
 
-    public int? Mileage { get; set; }
+    // Mileage changed to string?
+    public string? Mileage { get; set; }
 
     public int? BatteryCapacity { get; set; }
 
-    public int? Capacity { get; set; }
+    // changed Capacity from int? to string?
+    public string? Capacity { get; set; }
 
     public int? Cycles { get; set; }
 
@@ -43,11 +45,13 @@ public partial class Item
 
     public string? Color { get; set; }
 
-    public int? Seat { get; set; }
+    // Seat changed to string?
+    public string? Seat { get; set; }
 
     public string? BatteryIncluded { get; set; }
 
-    public decimal? Weight { get; set; }
+    // Weight changed to string?
+    public string? Weight { get; set; }
 
     public string? LicensePlate { get; set; }
 
@@ -61,6 +65,23 @@ public partial class Item
 
     public DateTime? UpdatedAt { get; set; }
 
+    // New fields
+    public string? Version { get; set; }
+    public string? Engine { get; set; }
+
+    // OwnerCount changed to string?
+    public string? OwnerCount { get; set; }
+
+    // InspectionValidUntil changed to bool?
+    public bool? InspectionValidUntil { get; set; }
+
+    // Accessories changed to bool?
+    public bool? Accessories { get; set; }
+    public string? BatteryType { get; set; }
+    public string? Voltage { get; set; }
+    public string? FrameMaterial { get; set; }
+    public string? FrameSize { get; set; }
+    public string? PartType { get; set; }
 
     public virtual ICollection<Listing> Listings { get; set; } = new List<Listing>();
 

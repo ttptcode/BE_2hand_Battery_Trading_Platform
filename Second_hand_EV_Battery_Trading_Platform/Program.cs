@@ -1,15 +1,38 @@
-using System.Security.Claims;
-using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
+using Second_hand_EV_Battery_Trading_Platform.src.Application.Hubs;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces;
 using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Extensions;
 using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository;
+using Second_hand_EV_Battery_Trading_Platform.src.Helpers;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
+
+// 🇻🇳 Cấu hình múi giờ Việt Nam
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("vi-VN");
+    options.SupportedCultures = new[] { new System.Globalization.CultureInfo("vi-VN") };
+    options.SupportedUICultures = new[] { new System.Globalization.CultureInfo("vi-VN") };
+});
+builder.Services.AddMemoryCache();
+// Cấu hình TimeZone cho toàn bộ ứng dụng
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("vi-VN");
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = new System.Globalization.CultureInfo("vi-VN");
+
+// 🔧 Cấu hình Data Protection để fix correlation cookie issues
+builder.Services.AddDataProtection()
+    .SetApplicationName("SecondHandEVBatteryPlatform")
+    .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
 
 // 🔐 1️⃣ Cấu hình xác thực Keycloak JWT
 var keycloak = configuration.GetSection("Keycloak");
@@ -20,7 +43,24 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
+   .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+   {
+       // 🔧 Cấu hình cookie để fix correlation failed
+       options.Cookie.Name = ".AspNetCore.Correlation";
+       options.Cookie.HttpOnly = false; // Cho phép JavaScript access để debug
+       options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Sử dụng SameAsRequest thay vì None
+       options.Cookie.SameSite = SameSiteMode.Lax; // Sử dụng Lax thay vì None
+       options.Cookie.IsEssential = true;
+       options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Tăng thời gian sống
+       options.SlidingExpiration = true; // Reset thời gian khi có activity
+       options.Cookie.Path = "/"; // Đảm bảo cookie có path đúng
+   })
+
+
+
+
 .AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -41,6 +81,18 @@ builder.Services.AddAuthentication(options =>
     // ...
     options.Events = new JwtBearerEvents
     {
+        // 🚀 SignalR Authentication Support
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        },
         OnChallenge = context =>
         {
             // 1. Dừng các xử lý mặc định. ĐÂY LÀ DÒNG QUAN TRỌNG NHẤT!
@@ -74,8 +126,53 @@ builder.Services.AddAuthentication(options =>
             return Task.CompletedTask;
         }
     };
-    
-});
+
+})
+
+   .AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+        // ⚡ Thêm đủ scope
+        googleOptions.Scope.Add("https://www.googleapis.com/auth/userinfo.email");
+        googleOptions.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
+        googleOptions.Scope.Add("https://www.googleapis.com/auth/user.phonenumbers.read");
+
+        // ⚡ Yêu cầu token để gọi API
+        googleOptions.SaveTokens = true;
+
+        // ⚡ (Optional) xác nhận đường redirect chuẩn
+        googleOptions.CallbackPath = "/signin-google";
+        
+        // 🔧 Cấu hình để fix correlation failed error
+        googleOptions.Events.OnCreatingTicket = context =>
+        {
+            // Đảm bảo correlation state được xử lý đúng
+            // Skip correlation validation cho production
+            return Task.CompletedTask;
+        };
+        
+        googleOptions.Events.OnRemoteFailure = context =>
+        {
+            // Log lỗi correlation để debug
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogError("Google OAuth remote failure: {Error}", context.Failure?.Message);
+            
+            // Redirect về OAuth error endpoint thay vì root domain
+            var errorUrl = $"/api/Auth/oauth-error?error=oauth_failed&message={Uri.EscapeDataString(context.Failure?.Message ?? "Unknown error")}&returnUrl=/";
+            context.Response.Redirect(errorUrl);
+            context.HandleResponse();
+            return Task.CompletedTask;
+        };
+        
+        // 🔧 Workaround: Disable correlation validation cho production
+        googleOptions.CorrelationCookie.Name = ".AspNetCore.Correlation";
+        googleOptions.CorrelationCookie.HttpOnly = false;
+        googleOptions.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Sử dụng SameAsRequest
+        googleOptions.CorrelationCookie.SameSite = SameSiteMode.Lax; // Sử dụng Lax thay vì None
+        googleOptions.CorrelationCookie.IsEssential = true;
+    });
 
 
 builder.Services.AddAuthorization();
@@ -147,9 +244,45 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<VNpayService>();
 
-// 🧩 4️⃣ Controllers
-builder.Services.AddControllers();
+// 🔄 Background service để expire pending payments
+builder.Services.AddHostedService<PaymentExpirationService>();
+
+// 🔐 Background service để tự động seed admin user
+builder.Services.AddHostedService<AdminSeedingService>();
+builder.Services.AddHttpClient();
+
+
+// 🚀 4️⃣ SignalR Configuration
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+});
+
+// 🧩 5️⃣ Controllers với timezone converter
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new VietnamDateTimeConverter());
+        options.JsonSerializerOptions.Converters.Add(new VietnamNullableDateTimeConverter());
+    });
+
+// Configure form options để cho phép upload file lớn
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 1073741824; // 1GB
+    options.ValueLengthLimit = int.MaxValue;
+    options.ValueCountLimit = int.MaxValue;
+});
+
+// Cấu hình Kestrel để cho phép request body lớn
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 1073741824; // 1GB
+});
 
 builder.Services.AddCors(options =>
 {
@@ -160,17 +293,37 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()   // Cho phép mọi phương thức (GET, POST, PUT, DELETE, ...)
             .AllowAnyHeader();  // Cho phép mọi header
     });
+    
+    // CORS policy cho React development và production
+    options.AddPolicy("ReactDev", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:3000", 
+                "http://localhost:3001", 
+                "http://localhost:5173",
+                "https://vehiclemarket.runasp.net", // Thêm domain production
+                "http://vehiclemarket.runasp.net"  // Thêm HTTP version
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials() // Cần thiết cho SignalR và OAuth
+            .SetIsOriginAllowedToAllowWildcardSubdomains(); // Cho phép subdomain
+    });
 });
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
 
+// 🇻🇳 Sử dụng localization middleware
+app.UseRequestLocalization();
+
 // Serve static files from wwwroot for uploaded images
 app.UseStaticFiles();
 
-// 🌐 Sử dụng CORS
-app.UseCors("AllowAll");
+// 🌐 Sử dụng CORS - ReactDev cho development, AllowAll cho production
+app.UseCors("ReactDev");
 
 // 🔒 Authentication luôn trước Authorization
 app.UseAuthentication();
@@ -191,6 +344,9 @@ app.UseAuthorization();
     });
 
 
+
+// 🚀 Map SignalR Hub
+app.MapHub<ChatHub>("/chathub");
 
 app.MapControllers();
 

@@ -114,12 +114,8 @@ public class UserPackageRepository : IUserPackageRepository
         if (userPackage == null)
             return false;
 
+        // Decrement remaining listings (allow reaching 0)
         userPackage.RemainingListings--;
-        
-        if (userPackage.RemainingListings <= 0)
-        {
-            userPackage.Status = "Expired";
-        }
 
         await _context.SaveChangesAsync();
         return true;

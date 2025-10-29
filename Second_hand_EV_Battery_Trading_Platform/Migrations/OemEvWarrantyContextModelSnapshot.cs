@@ -144,7 +144,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FeeName")
                         .HasMaxLength(100)
@@ -178,10 +178,18 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<bool?>("Accessories")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("BatteryCapacity")
                         .HasColumnType("int");
 
                     b.Property<string>("BatteryIncluded")
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("BatteryType")
                         .HasMaxLength(100)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(100)");
@@ -191,8 +199,10 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("Capacity")
-                        .HasColumnType("int");
+                    b.Property<string>("Capacity")
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Color")
                         .HasMaxLength(50)
@@ -200,15 +210,30 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Condition")
-                        .HasMaxLength(50)
+                        .HasMaxLength(200)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime");
 
                     b.Property<int?>("Cycles")
                         .HasColumnType("int");
+
+                    b.Property<string>("Engine")
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FrameMaterial")
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FrameSize")
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Fuel")
                         .HasMaxLength(50)
@@ -220,6 +245,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<bool?>("InspectionValidUntil")
+                        .HasColumnType("bit");
+
                     b.Property<Guid?>("ItemTypeId")
                         .HasColumnType("uniqueidentifier");
 
@@ -228,8 +256,10 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int?>("Mileage")
-                        .HasColumnType("int");
+                    b.Property<string>("Mileage")
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Model")
                         .HasMaxLength(100)
@@ -241,11 +271,23 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("OwnerCount")
+                        .HasMaxLength(50)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PartType")
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<int?>("Seat")
-                        .HasColumnType("int");
+                    b.Property<string>("Seat")
+                        .HasMaxLength(50)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(100)
@@ -273,13 +315,25 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Version")
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("VideoUrl")
                         .HasMaxLength(1000)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<decimal?>("Weight")
-                        .HasColumnType("decimal(18, 2)");
+                    b.Property<string>("Voltage")
+                        .HasMaxLength(50)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Weight")
+                        .HasMaxLength(50)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("Year")
                         .HasColumnType("int");
@@ -359,6 +413,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal?>("BidIncrement")
                         .HasColumnType("decimal(18,2)");
 
@@ -367,6 +424,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime");
+
+                    b.Property<string>("Detail")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime");
@@ -398,6 +458,12 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Warranty")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("YouAre")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ListingId")
                         .HasName("PK__Listing__BF3EBED069BB4A02");
@@ -506,7 +572,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RoleName")
                         .HasMaxLength(50)
@@ -631,6 +697,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                     b.Property<Guid?>("ItemId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ListingId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int?>("Rating")
                         .HasColumnType("int");
 
@@ -644,6 +713,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasName("PK__UserRepu__6B1FFF21E6FDBC5A");
 
                     b.HasIndex("ItemId");
+
+                    b.HasIndex("ListingId");
 
                     b.HasIndex("RevieweeId");
 
@@ -835,10 +906,14 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 
             modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.UserReputationReview", b =>
                 {
-                    b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.Item", "Item")
+                    b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.Item", null)
                         .WithMany("UserReputationReviews")
-                        .HasForeignKey("ItemId")
-                        .HasConstraintName("FK__UserReput__ItemI__797309D9");
+                        .HasForeignKey("ItemId");
+
+                    b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.Listing", "Listing")
+                        .WithMany()
+                        .HasForeignKey("ListingId")
+                        .HasConstraintName("FK__UserReput__Listi__797309D9");
 
                     b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.User", "Reviewee")
                         .WithMany("UserReputationReviewReviewees")
@@ -850,7 +925,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                         .HasForeignKey("ReviewerId")
                         .HasConstraintName("FK__UserReput__Revie__778AC167");
 
-                    b.Navigation("Item");
+                    b.Navigation("Listing");
 
                     b.Navigation("Reviewee");
 

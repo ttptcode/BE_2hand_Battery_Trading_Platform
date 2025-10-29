@@ -11,12 +11,13 @@ public interface IItemService
     Task<IEnumerable<ItemResponseDto>> GetItemsByStatusAsync(string status);
     Task<IEnumerable<ItemResponseDto>> SearchItemsAsync(string? title, string? brand, string? model, string? itemType);
     Task<IEnumerable<ItemResponseDto>> SearchAdvancedAsync(string? title, string? brand, string? model, string? itemType, 
-        string? style, string? color, string? origin, string? fuel, string? gearbox);
+        string? style, string? color, string? origin, string? fuel, string? gearbox,
+        string? version, string? engine, string? batteryType, string? voltage, string? frameMaterial, string? frameSize, string? partType);
     Task<ItemResponseDto> CreateItemAsync(CreateItemDto createItemDto);
     Task<ItemResponseDto?> UpdateItemAsync(Guid id, UpdateItemDto updateItemDto);
     Task<bool> DeleteItemAsync(Guid id);
     Task<bool> ItemExistsAsync(Guid id);
 
-    Task<ItemResponseDto?> UploadImagesAsync(Guid itemId, IEnumerable<IFormFile> files, string baseUrl, string webRootPath);
+    Task<ItemResponseDto?> UploadImagesAsync(Guid itemId, IEnumerable<IFormFile> files, string baseUrl, string webRootPath, IEnumerable<string>? existingImageUrls = null);
     Task<ItemResponseDto?> UploadVideoAsync(Guid itemId, IFormFile video, string baseUrl, string webRootPath);
 }

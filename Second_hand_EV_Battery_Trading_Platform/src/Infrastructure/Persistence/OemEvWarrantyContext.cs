@@ -127,7 +127,7 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.FeeId).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Description).HasColumnType("text");
+            entity.Property(e => e.Description).HasColumnType("nvarchar(max)");
             entity.Property(e => e.FeeName)
                 .HasMaxLength(100)
                 .IsUnicode(true);
@@ -150,7 +150,7 @@ public partial class OemEvWarrantyContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(true);
             entity.Property(e => e.Condition)
-                .HasMaxLength(50)
+                .HasMaxLength(200)
                 .IsUnicode(true);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.ItemTypeId).HasColumnType("uniqueidentifier");
@@ -179,7 +179,10 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.BatteryIncluded)
                 .HasMaxLength(100)
                 .IsUnicode(true);
-            entity.Property(e => e.Weight).HasColumnType("decimal(18, 2)");
+            // Weight now string
+            entity.Property(e => e.Weight)
+                .HasMaxLength(50)
+                .IsUnicode(true);
             entity.Property(e => e.LicensePlate)
                 .HasMaxLength(20)
                 .IsUnicode(true);
@@ -193,6 +196,63 @@ public partial class OemEvWarrantyContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(true);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            // Capacity mapping (string nvarchar(100))
+            entity.Property(e => e.Capacity)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+
+            // Mileage mapping (string nvarchar(100))
+            entity.Property(e => e.Mileage)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+
+            // Seat mapping (string nvarchar(50))
+            entity.Property(e => e.Seat)
+                .HasMaxLength(50)
+                .IsUnicode(true);
+
+            // OwnerCount mapping (string nvarchar(50))
+            entity.Property(e => e.OwnerCount)
+                .HasMaxLength(50)
+                .IsUnicode(true);
+
+            // InspectionValidUntil mapping (bool -> bit)
+            entity.Property(e => e.InspectionValidUntil)
+                .HasColumnType("bit");
+
+            // Accessories mapping (bool -> bit)
+            entity.Property(e => e.Accessories)
+                .HasColumnType("bit");
+
+            // New fields mapping
+            entity.Property(e => e.Version)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+
+            entity.Property(e => e.Engine)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+
+            entity.Property(e => e.BatteryType)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+
+            entity.Property(e => e.Voltage)
+                .HasMaxLength(50)
+                .IsUnicode(true);
+
+            entity.Property(e => e.FrameMaterial)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+
+            entity.Property(e => e.FrameSize)
+                .HasMaxLength(100)
+                .IsUnicode(true);
+
+            entity.Property(e => e.PartType)
+                .HasMaxLength(100)
+                .IsUnicode(true);
 
             entity.HasOne(d => d.User).WithMany(p => p.Items)
                 .HasForeignKey(d => d.UserId)
@@ -259,6 +319,9 @@ public partial class OemEvWarrantyContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(true);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Detail).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.Address).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.Warranty).HasColumnType("nvarchar(max)");
 
             entity.HasOne(d => d.Fee).WithMany(p => p.Listings)
                 .HasForeignKey(d => d.FeeId)
@@ -339,7 +402,7 @@ public partial class OemEvWarrantyContext : DbContext
 
             entity.Property(e => e.RoleId).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Description).HasColumnType("text");
+            entity.Property(e => e.Description).HasColumnType("nvarchar(max)");
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
                 .IsUnicode(true);
@@ -391,9 +454,10 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.Comment).HasColumnType("text");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Item).WithMany(p => p.UserReputationReviews)
-                .HasForeignKey(d => d.ItemId)
-                .HasConstraintName("FK__UserReput__ItemI__797309D9");
+            // Map to Listing via ListingId (match domain which uses Listing/ListingId)
+            entity.HasOne(d => d.Listing).WithMany()
+                .HasForeignKey(d => d.ListingId)
+                .HasConstraintName("FK__UserReput__Listi__797309D9");
 
             entity.HasOne(d => d.Reviewee).WithMany(p => p.UserReputationReviewReviewees)
                 .HasForeignKey(d => d.RevieweeId)

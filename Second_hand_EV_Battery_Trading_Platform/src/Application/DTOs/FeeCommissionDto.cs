@@ -7,8 +7,8 @@ public class CreateFeeCommissionDto
     [Required, StringLength(100)]
     public string FeeName { get; set; } = default!;
 
-    // Chỉ VIP hoặc Post (phí lẻ)
-    [Required, RegularExpression("VIP|Post", ErrorMessage = "FeeType must be 'VIP' or 'Post'")]
+    // Chỉ Discount hoặc Free (phí lẻ)
+    [Required, RegularExpression("Discount|Free|Pay1v1", ErrorMessage = "FeeType must be 'Discount' or 'Free' or 'Pay1v1'")]
     public string FeeType { get; set; } = default!;
 
     // Với VIP: Amount là giá mua gói; Với Post: Amount là phí đăng tin/lần

@@ -26,5 +26,17 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
                                  .OrderBy(m => m.CreatedAt)
                                  .ToListAsync();
         }
+
+        public async Task<Message?> GetByIdAsync(Guid messageId)
+        {
+            return await _context.Messages
+                                 .FirstOrDefaultAsync(m => m.MessageId == messageId);
+        }
+
+        public async Task UpdateAsync(Message message)
+        {
+            _context.Messages.Update(message);
+            await _context.SaveChangesAsync();
+        }
     }
 }

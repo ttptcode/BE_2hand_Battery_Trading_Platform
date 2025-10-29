@@ -6,5 +6,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
     {
         Task AddAsync(Message message);
         Task<IEnumerable<Message>> GetByConversationIdAsync(Guid conversationId);
+        Task<Message?> GetByIdAsync(Guid messageId);
+        Task UpdateAsync(Message message);
     }
 }

@@ -4,8 +4,8 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
 
 public class PurchasePackageRequest
 {
-    public Guid UserId { get; set; }
     public Guid FeeId { get; set; }
+    public int Month { get; set; } = 1; // Mặc định 1 tháng
 }
 
 public class UserPackageResponse
@@ -16,11 +16,9 @@ public class UserPackageResponse
     public DateTime ActivatedAt { get; set; }
     public DateTime ExpiredAt { get; set; }
     public string? Status { get; set; }
-    public string? FeeName { get; set; }
-    public string? FeeType { get; set; }
-    public decimal? Amount { get; set; }
-    public int? PackageDurationDays { get; set; }
-    public int? MaxListings { get; set; }
+    public int Month { get; set; }
+    public decimal TotalAmount { get; set; }
+    public FeeCommissionResponseDto FeeCommission { get; set; } = new();
 }
 
 public class UserPackageDto

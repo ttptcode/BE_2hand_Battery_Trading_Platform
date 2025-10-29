@@ -49,5 +49,11 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
             _context.Conversations.Add(conversation);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateAsync(Conversation conversation)
+        {
+            _context.Conversations.Update(conversation);
+            await _context.SaveChangesAsync();
+        }
     }
 }

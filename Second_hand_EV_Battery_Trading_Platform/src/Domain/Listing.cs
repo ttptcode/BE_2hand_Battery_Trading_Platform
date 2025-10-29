@@ -31,6 +31,14 @@ public partial class Listing
 
     public DateTime? UpdatedAt { get; set; }
 
+    public string? Detail { get; set; }
+
+    public string? Address { get; set; }
+
+    public string? Warranty { get; set; }
+
+    public string? YouAre { get; set; }
+
     public virtual ICollection<AuctionResult> AuctionResults { get; set; } = new List<AuctionResult>();
 
     public virtual ICollection<Bid> Bids { get; set; } = new List<Bid>();

@@ -249,7 +249,11 @@ builder.Services.AddScoped<IUserReputationReviewRepository, UserReputationReview
 builder.Services.AddScoped<IUserReputationReviewService, UserReputationReviewService>();
 // 🔄 Background service để expire pending payments
 builder.Services.AddHostedService<PaymentExpirationService>();
+// Repository
+builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 
+// Service
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 // 🔐 Background service để tự động seed admin user
 builder.Services.AddHostedService<AdminSeedingService>();
 builder.Services.AddHttpClient();

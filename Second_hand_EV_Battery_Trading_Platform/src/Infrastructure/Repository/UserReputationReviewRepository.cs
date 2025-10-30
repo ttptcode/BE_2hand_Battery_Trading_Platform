@@ -66,5 +66,16 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<UserReputationReview> UpdateAsync(UserReputationReview entity)
+        {
+            _context.UserReputationReviews.Update(entity);
+            await _context.SaveChangesAsync();
+
+            // Thêm Include để load Reviewer và Reviewee
+            return await _context.UserReputationReviews
+                .Include(r => r.Reviewer)
+                .Include(r => r.Reviewee)
+                .FirstOrDefaultAsync(r => r.ReputationReviewId == entity.ReputationReviewId);
+        }
     }
 }

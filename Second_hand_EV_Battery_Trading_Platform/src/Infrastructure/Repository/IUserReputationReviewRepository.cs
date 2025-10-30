@@ -1,4 +1,5 @@
-﻿using Second_hand_EV_Battery_Trading_Platform.src.Domain;
+﻿using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
+using Second_hand_EV_Battery_Trading_Platform.src.Domain;
 
 namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
 {
@@ -10,5 +11,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
         Task<IEnumerable<UserReputationReview>> GetByReviewerIdAsync(Guid reviewerId);
         Task<IEnumerable<UserReputationReview>> GetByListingIdAsync(Guid listingId);
         Task<bool> DeleteAsync(Guid id);
+        Task<UserReputationReview> UpdateAsync(UserReputationReview review);
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
 using Second_hand_EV_Battery_Trading_Platform.src.Domain;
 using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository;
 
@@ -55,6 +56,41 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces
 
             return MapToDto(created);
         }
+        public async Task<ReviewResponseDto?> UpdateReviewAsync(Guid id, UpdateReviewDto dto)
+        {
+            var review = await _repo.GetByIdAsync(id); // repo.GetByIdAsync đã Include Reviewer + Reviewee
+            if (review == null) return null;
+
+            if (dto.Rating.HasValue)
+                review.Rating = dto.Rating;
+
+            if (!string.IsNullOrEmpty(dto.Comment))
+                review.Comment = dto.Comment;
+
+            if (dto.ListingId.HasValue)
+                review.ListingId = dto.ListingId;
+
+            var updated = await _repo.UpdateAsync(review); // UpdateAsync cũng Include Reviewer + Reviewee
+
+            return new ReviewResponseDto
+            {
+                ReputationReviewId = updated.ReputationReviewId,
+                ReviewerId = updated.ReviewerId ?? Guid.Empty,
+                ReviewerName = updated.Reviewer?.FullName,   // <-- thêm vào
+                RevieweeId = updated.RevieweeId ?? Guid.Empty,
+                RevieweeName = updated.Reviewee?.FullName,   // <-- thêm vào
+                ListingId = updated.ListingId,
+                Rating = updated.Rating ?? 0,
+                Comment = updated.Comment,
+                CreatedAt = updated.CreatedAt
+            };
+        }
+
+
+
+
+
+
 
         public async Task<IEnumerable<ReviewResponseDto>> GetReviewsByRevieweeAsync(Guid revieweeId)
         {

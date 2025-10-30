@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs;
 using Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces;
@@ -132,6 +133,46 @@ namespace Second_hand_EV_Battery_Trading_Platform.Controller
                 return StatusCode(500, ApiResponse.ErrorResult("Internal server error", ex.Message));
             }
         }
+        [HttpPut("{id}")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult<ApiResponse<object>>> UpdateReview(Guid id, [FromBody] UpdateReviewDto dto)
+        {
+            try
+            {
+                // Lấy userId từ JWT
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
+                    ?? User.FindFirst("sub")
+                    ?? User.FindFirst(ClaimTypes.Name);
+
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var currentUserId))
+                    return Unauthorized(ApiResponse<object>.ErrorResult("Invalid or missing user token."));
+
+                // Lấy review hiện có
+                var existing = await _service.GetByIdAsync(id);
+                if (existing == null)
+                    return NotFound(ApiResponse<object>.ErrorResult("Review not found."));
+
+                // Chỉ reviewer gốc mới được update
+                if (existing.ReviewerId != currentUserId)
+                    return StatusCode(403, ApiResponse<object>.ErrorResult("You can only update your own review."));
+
+
+                // Gọi service để cập nhật
+                var updated = await _service.UpdateReviewAsync(id, dto);
+                if (updated == null)
+                    return BadRequest(ApiResponse<object>.ErrorResult("Failed to update review."));
+
+                return Ok(ApiResponse<object>.SuccessResult(updated, "Review updated successfully."));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while updating review {ReviewId}", id);
+                return StatusCode(500, ApiResponse<object>.ErrorResult("Internal server error while updating review", ex.Message));
+            }
+        }
+
+
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse<ReviewResponseDto>>> GetById(Guid id)

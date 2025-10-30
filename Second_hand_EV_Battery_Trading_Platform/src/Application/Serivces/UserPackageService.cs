@@ -129,7 +129,7 @@ public class UserPackageService : IUserPackageService
                 ExpiredAt = p.ExpiredAt,
                 Status = p.Status,
                 Month = CalculateMonthFromDates(p.ActivatedAt, p.ExpiredAt),
-                TotalAmount = p.FeeCommission?.Amount ?? 0,
+                TotalAmount = p.FeeCommission?.Amount * CalculateMonthFromDates(p.ActivatedAt, p.ExpiredAt) ?? 0,
                 FeeCommission = p.FeeCommission != null ? new FeeCommissionResponseDto
                 {
                     FeeId = p.FeeCommission.FeeId,
@@ -268,10 +268,17 @@ public class UserPackageService : IUserPackageService
     /// <summary>
     /// Tính số tháng dựa trên ngày kích hoạt và ngày hết hạn
     /// </summary>
-    private static int CalculateMonthFromDates(DateTime activatedAt, DateTime expiredAt)
+    private int CalculateMonthFromDates(DateTime startDate, DateTime endDate)
     {
-        var totalDays = (expiredAt - activatedAt).TotalDays;
-        var months = (int)Math.Ceiling(totalDays / 30.0);
-        return Math.Max(1, months); // Đảm bảo tối thiểu là 1 tháng
+        // Tính tổng số tháng dựa trên chênh lệch của năm và tháng
+        int months = ((endDate.Year - startDate.Year) * 12) + endDate.Month - startDate.Month;
+
+        if (endDate.Day < startDate.Day)
+        {
+            months--;
+        }
+
+        // Đảm bảo kết quả tối thiểu là 1 tháng theo yêu cầu của bạn
+        return Math.Max(1, months);
     }
 }

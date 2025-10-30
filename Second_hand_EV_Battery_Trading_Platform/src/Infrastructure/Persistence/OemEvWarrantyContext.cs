@@ -44,9 +44,11 @@ public partial class OemEvWarrantyContext : DbContext
 
     public virtual DbSet<UserPackage> UserPackages { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=LAPTOP-O1MT6N7J\\SQLEXPRESS;Database=OEM_EV_Warranty;Trusted_Connection=True;TrustServerCertificate=True;");
+    public virtual DbSet<Favorite> Favorites { get; set; }
+
+    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+    //        => optionsBuilder.UseSqlServer("Server=LAPTOP-O1MT6N7J\\SQLEXPRESS;Database=OEM_EV_Warranty;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -451,7 +453,8 @@ public partial class OemEvWarrantyContext : DbContext
             entity.ToTable("UserReputationReview");
 
             entity.Property(e => e.ReputationReviewId).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.Comment).HasColumnType("text");
+            // Change Comment column from text to nvarchar(max)
+            entity.Property(e => e.Comment).HasColumnType("nvarchar(max)");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
             // Map to Listing via ListingId (match domain which uses Listing/ListingId)
@@ -489,6 +492,27 @@ public partial class OemEvWarrantyContext : DbContext
                 .HasForeignKey(d => d.FeeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserPackage_FeeCommission");
+        });
+
+        // Favorite mapping
+        modelBuilder.Entity<Favorite>(entity =>
+        {
+            entity.HasKey(e => e.FavoriteId).HasName("PK_Favorite");
+
+            entity.ToTable("Favorite");
+
+            entity.Property(e => e.FavoriteId).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_Favorite_User");
+
+            entity.HasOne(d => d.Listing).WithMany()
+                .HasForeignKey(d => d.ListingId)
+                .HasConstraintName("FK_Favorite_Listing");
+
+            entity.HasIndex(e => new { e.UserId, e.ListingId }).IsUnique().HasDatabaseName("IX_Favorite_User_Listing");
         });
 
         OnModelCreatingPartial(modelBuilder);

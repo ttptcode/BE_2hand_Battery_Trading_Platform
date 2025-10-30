@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 {
     [DbContext(typeof(OemEvWarrantyContext))]
-    partial class OemEvWarrantyContextModelSnapshot : ModelSnapshot
+    [Migration("20251030153800_ChangeFieldCommentNvarchar")]
+    partial class ChangeFieldCommentNvarchar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -128,35 +131,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                     b.HasIndex("SellerId");
 
                     b.ToTable("Conversation", (string)null);
-                });
-
-            modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.Favorite", b =>
-                {
-                    b.Property<Guid>("FavoriteId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("(newid())");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime");
-
-                    b.Property<Guid?>("ListingId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("FavoriteId")
-                        .HasName("PK_Favorite");
-
-                    b.HasIndex("ListingId");
-
-                    b.HasIndex("UserId", "ListingId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Favorite_User_Listing")
-                        .HasFilter("[UserId] IS NOT NULL AND [ListingId] IS NOT NULL");
-
-                    b.ToTable("Favorite", (string)null);
                 });
 
             modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.FeeCommission", b =>
@@ -808,23 +782,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                     b.Navigation("Listing");
 
                     b.Navigation("Seller");
-                });
-
-            modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.Favorite", b =>
-                {
-                    b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.Listing", "Listing")
-                        .WithMany()
-                        .HasForeignKey("ListingId")
-                        .HasConstraintName("FK_Favorite_Listing");
-
-                    b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK_Favorite_User");
-
-                    b.Navigation("Listing");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Second_hand_EV_Battery_Trading_Platform.src.Domain.Item", b =>

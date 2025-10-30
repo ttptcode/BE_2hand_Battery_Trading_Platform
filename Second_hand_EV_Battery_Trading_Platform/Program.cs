@@ -245,7 +245,8 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<VNpayService>();
-
+builder.Services.AddScoped<IUserReputationReviewRepository, UserReputationReviewRepository>();
+builder.Services.AddScoped<IUserReputationReviewService, UserReputationReviewService>();
 // 🔄 Background service để expire pending payments
 builder.Services.AddHostedService<PaymentExpirationService>();
 

@@ -333,7 +333,7 @@ public class VNpayService
                     FeeId = fee.FeeId,
                     RemainingListings = (fee.MaxListings ?? 0),
                     ActivatedAt = DateTime.UtcNow,
-                    ExpiredAt = DateTime.UtcNow.AddDays(month),
+                    ExpiredAt = DateTime.UtcNow.AddMonths(month),
                     Status = "Active"
                 };
 

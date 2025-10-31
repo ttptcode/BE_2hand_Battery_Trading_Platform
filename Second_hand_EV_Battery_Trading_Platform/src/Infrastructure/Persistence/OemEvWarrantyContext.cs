@@ -46,6 +46,8 @@ public partial class OemEvWarrantyContext : DbContext
 
     public virtual DbSet<Favorite> Favorites { get; set; }
 
+    public virtual DbSet<OtpSaving> OtpSavings { get; set; }
+
     //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
     //        => optionsBuilder.UseSqlServer("Server=LAPTOP-O1MT6N7J\\SQLEXPRESS;Database=OEM_EV_Warranty;Trusted_Connection=True;TrustServerCertificate=True;");
@@ -513,6 +515,32 @@ public partial class OemEvWarrantyContext : DbContext
                 .HasConstraintName("FK_Favorite_Listing");
 
             entity.HasIndex(e => new { e.UserId, e.ListingId }).IsUnique().HasDatabaseName("IX_Favorite_User_Listing");
+        });
+        modelBuilder.Entity<OtpSaving>(entity =>
+        {
+            entity.HasKey(e => e.OtpSavingId).HasName("PK_OtpSaving");
+            entity.ToTable("OtpSaving");
+
+            entity.Property(e => e.OtpSavingId).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .IsUnicode(true)
+                .IsRequired();
+            entity.Property(e => e.OtpHash)
+                .HasMaxLength(256)
+                .IsUnicode(false)
+                .IsRequired();
+            entity.Property(e => e.Salt)
+                .HasMaxLength(128)
+                .IsUnicode(false)
+                .IsRequired();
+            entity.Property(e => e.Attempts)
+                .HasDefaultValue(0);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime").IsRequired();
+            entity.Property(e => e.ExpiresAt).HasColumnType("datetime").IsRequired();
+            entity.Property(e => e.IsUsed).HasColumnType("bit").IsRequired();
+
+            entity.HasIndex(e => e.Phone).HasDatabaseName("IX_OtpSaving_Phone");
         });
 
         OnModelCreatingPartial(modelBuilder);

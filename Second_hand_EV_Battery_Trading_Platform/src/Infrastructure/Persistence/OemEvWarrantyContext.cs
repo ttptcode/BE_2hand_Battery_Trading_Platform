@@ -338,7 +338,6 @@ public partial class OemEvWarrantyContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Listings)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Listing__UserId__6D0D32F4");
-
         });
 
         modelBuilder.Entity<Message>(entity =>
@@ -418,7 +417,6 @@ public partial class OemEvWarrantyContext : DbContext
             entity.HasKey(e => e.UserId).HasName("PK__User__1788CC4C3933A59D");
 
             entity.ToTable("User");
-
 
             entity.HasIndex(e => e.Email, "IX_User_Email");
 
@@ -546,5 +544,5 @@ public partial class OemEvWarrantyContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

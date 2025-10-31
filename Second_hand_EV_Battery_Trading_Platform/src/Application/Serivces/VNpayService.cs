@@ -60,32 +60,51 @@ public class VNpayService
             var tmnCode = config["TmnCode"];
             var hashSecret = config["HashSecret"];
             var baseUrl = config["BaseUrl"];
-
-            // If this is a package purchase, ensure the user does not already have an active package
             if (feeId.HasValue)
             {
-
-
-
                 try
                 {
-                    var activePackagesResp = await _userPackageService.GetActiveUserPackagesAsync(userId);
-                    if (activePackagesResp.Success && activePackagesResp.Data != null && activePackagesResp.Data.Any())
+                    // BƯỚC 1: Lấy thông tin của gói người dùng ĐANG CỐ MUA
+                    var newPackageFeeInfo = await _context.FeeCommissions.FirstOrDefaultAsync(fc => fc.FeeId == feeId.Value);
+
+                    if (newPackageFeeInfo == null)
                     {
-                        throw new InvalidOperationException("User already has an active package");
+                        throw new InvalidOperationException("Gói phí bạn đang cố mua không tồn tại.");
+                    }
+
+                    // BƯỚC 2: Lấy thông tin các gói người dùng ĐANG CÓ
+                    var activePackagesResp = await _userPackageService.GetUserPackagesAsync(userId);
+
+                    // Chỉ thực hiện kiểm tra nếu lấy được thông tin gói thành công
+                    if (activePackagesResp.Success && activePackagesResp.Data != null)
+                    {
+                        // QUY TẮC 1: Không cho mua GÓI LẺ nếu đã có GÓI LẺ
+
+
+                        // QUY TẮC 2: Không cho mua GÓI DÀI HẠN nếu đã có GÓI DÀI HẠN
+                        if (newPackageFeeInfo.FeeType != "Pay1v1" &&
+                            activePackagesResp.Data.Packages.Any(p => p.FeeCommission?.FeeType != "Pay1v1"))
+                        {
+                            throw new InvalidOperationException("User này đã có gói dài hạn đang hoạt động.");
+                        }
                     }
                 }
+                // Bắt chính xác lỗi nghiệp vụ và ném lại nó
+                catch (InvalidOperationException ex)
+                {
+                    _logger.LogWarning("Validation failed for user {UserId}: {ErrorMessage}", userId, ex.Message);
+                    // Ném lại lỗi gốc để lớp gọi nó (Controller) có thể nhận được thông báo lỗi chính xác
+                    throw;
+                }
+                // Chỉ bắt các lỗi hệ thống không mong muốn khác
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Failed to validate existing active packages for user {UserId}", userId);
-                    // If the check fails for unexpected reason, rethrow to avoid accidental duplicate purchases
-                    throw new InvalidOperationException("Unable to validate existing user packages at this time");
+                    _logger.LogError(ex, "Lỗi không mong muốn xảy ra khi xác thực gói cho người dùng {UserId}", userId);
+
+                    // Ném ra một lỗi chung chung cho các vấn đề không lường trước (VD: database sập)
+                    throw new InvalidOperationException("Không thể xác thực các gói hiện có của người dùng tại thời điểm này do lỗi hệ thống.");
                 }
-
-
             }
-
-
 
             // Tạo transaction mới với status "Pending"
             var payment = new PaymentTransaction
@@ -298,9 +317,9 @@ public class VNpayService
     {
         try
         {
-            // Validate UserId
             _logger.LogInformation("Handling successful payment {PaymentId} for UserId {UserId}",
                 payment.PaymentId, payment.UserId);
+
             if (!payment.UserId.HasValue)
             {
                 _logger.LogWarning("Payment {PaymentId} has no UserId", payment.PaymentId);
@@ -309,42 +328,81 @@ public class VNpayService
 
             var userId = payment.UserId.Value;
 
-            // Trường hợp 1: Thanh toán cho listing - không cần xử lý thêm
-          
-
+            // Chỉ xử lý khi có FeeId (thanh toán cho gói)
             if (payment.FeeId != null)
-
             {
+                // Lấy thông tin của gói phí vừa được thanh toán
+                var fee = await _context.FeeCommissions.FirstOrDefaultAsync(fc => fc.FeeId == payment.FeeId.Value);
 
-                var fee = await _context.FeeCommissions
-                    .FirstOrDefaultAsync(fc =>
-                        fc.FeeId.ToString().ToUpper() == payment.FeeId.ToString().ToUpper()
-                    );
+                if (fee == null)
+                {
+                    _logger.LogError("FeeCommission with ID {FeeId} not found after successful payment.", payment.FeeId.Value);
+                    return; // Không thể tiếp tục nếu không có thông tin gói
+                }
+
+                if (!fee.Amount.HasValue || fee.Amount.Value == 0)
+                {
+                    _logger.LogError("FeeCommission {FeeId} has an invalid Amount.", fee.FeeId);
+                    return; // Tránh lỗi chia cho 0
+                }
 
                 int month = (int)(payment.Amount.Value / fee.Amount.Value);
 
-                var packageDurationDays = fee.PackageDurationDays ;
-                var totalAmount = (fee.Amount ?? 0) * month;
+                // --- LOGIC MỚI: KIỂM TRA LOẠI GÓI ĐỂ CỘNG DỒN HOẶC TẠO MỚI ---
 
-                // Tạo UserPackage mới
-                var userPackage = new UserPackage
+                // Trường hợp 1: Mua GÓI LẺ ("Pay1v1")
+                if (fee.FeeType == "Pay1v1")
                 {
-                    UserId = userId,
-                    FeeId = fee.FeeId,
-                    RemainingListings = (fee.MaxListings ?? 0),
-                    ActivatedAt = DateTime.UtcNow,
-                    ExpiredAt = DateTime.UtcNow.AddMonths(month),
-                    Status = "Active"
-                };
+                    // Tìm xem người dùng có gói lẻ nào đang hoạt động không
+                    var existingPackage = await _context.UserPackages
+                        .FirstOrDefaultAsync(up => up.UserId == userId && up.FeeCommission.FeeType == "Pay1v1" && up.Status == "Active");
 
-                await _userPackageRepository.CreateUserPackageAsync(userPackage);
-  
+                    if (existingPackage != null)
+                    {
+                        // **CẬP NHẬT GÓI CŨ**: Nếu có, cộng dồn lượt đăng và gia hạn
+                        _logger.LogInformation("Stacking new purchase onto existing Pay1v1 package for UserId {UserId}", userId);
+
+                        existingPackage.RemainingListings += (fee.MaxListings ?? 0);
+                        // Gia hạn thêm 'month' tháng KỂ TỪ NGÀY HẾT HẠN HIỆN TẠI
+                        existingPackage.ExpiredAt = existingPackage.ExpiredAt.AddMonths(month);
+
+                        await _userPackageRepository.UpdateUserPackageAsync(existingPackage);
+                    }
+                    else
+                    {
+                        // **TẠO GÓI MỚI**: Nếu không có, tạo một gói lẻ mới
+                        await CreateNewUserPackage(userId, fee, month);
+                    }
+                }
+                // Trường hợp 2: Mua GÓI DÀI HẠN (không phải "Pay1v1")
+                else
+                {
+                    // Logic mặc định là tạo một gói dài hạn mới
+                    // (Giả sử các bước kiểm tra trước đó đã đảm bảo người dùng chưa có gói dài hạn)
+                    await CreateNewUserPackage(userId, fee, month);
+                }
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error handling successful payment {PaymentId}", payment.PaymentId);
         }
+    }
+
+    // Hàm phụ trợ để tránh lặp code
+    private async Task CreateNewUserPackage(Guid userId, FeeCommission fee, int month)
+    {
+        _logger.LogInformation("Creating new package of type {FeeType} for UserId {UserId}", fee.FeeType, userId);
+        var userPackage = new UserPackage
+        {
+            UserId = userId,
+            FeeId = fee.FeeId,
+            RemainingListings = fee.MaxListings ?? 0,
+            ActivatedAt = DateTime.UtcNow,
+            ExpiredAt = DateTime.UtcNow.AddMonths(month), // Ngày hết hạn tính từ bây giờ
+            Status = "Active"
+        };
+        await _userPackageRepository.CreateUserPackageAsync(userPackage);
     }
 
     private string HmacSHA512(string key, string inputData)

@@ -253,19 +253,11 @@ public class FeeCommissionsController : ControllerBase
                 return NotFound(ApiResponse<bool>.ErrorResult("Fee commission not found"));
             }
 
-            // Kiểm tra xem có UserPackage nào đang sử dụng FeeCommission này không
-            var hasUserPackages = await _context.UserPackages
-                .AnyAsync(up => up.FeeId == feeId);
-
-            if (hasUserPackages)
-            {
-                return BadRequest(ApiResponse<bool>.ErrorResult("Cannot delete fee commission that is being used by user packages"));
-            }
-
-            _context.FeeCommissions.Remove(feeCommission);
+            // Soft delete: set status to false
+            feeCommission.Status = false;
             await _context.SaveChangesAsync();
 
-            return Ok(ApiResponse<bool>.SuccessResult(true, "Fee commission deleted successfully"));
+            return Ok(ApiResponse<bool>.SuccessResult(true, "Fee commission soft-deleted (status set to false) successfully"));
         }
         catch (Exception ex)
         {

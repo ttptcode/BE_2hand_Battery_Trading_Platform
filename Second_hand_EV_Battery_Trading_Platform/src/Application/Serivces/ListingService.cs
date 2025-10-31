@@ -362,24 +362,35 @@ public class ListingService : IListingService
             {
                 // Attempt to compute EndDate from fee package duration
                 var fee = await _feeRepo.GetByIdAsync(listing.FeeId.Value);
-                if (fee != null && fee.PackageDurationDays.HasValue)
+                if (fee != null && fee.PackageDurationDays.HasValue && fee.FeeType != "Pay1v1")
                 {
                     listing.EndDate = DateTime.UtcNow.AddDays(fee.PackageDurationDays.Value);
+                    var consumed = await _userPackageRepository.ConsumeListingAsync(listing.UserId.Value, listing.FeeId.Value);
+                    if (!consumed)
+                    {
+                        throw new InvalidOperationException("User package does not have remaining listing slots to activate this listing.");
+                    }
                 }
                 else
                 {
-                    listing.EndDate = DateTime.UtcNow.AddDays(7);
+                    listing.EndDate = DateTime.UtcNow.AddDays(fee.PackageDurationDays.Value);
+                    var userPackage = await _userPackageRepository.GetUserPackageAsync(listing.UserId.Value, listing.FeeId.Value);
+                    if (userPackage == null)
+                    {
+                        throw new InvalidOperationException("User package not found for this listing.");
+                    }
+                    if (userPackage.RemainingListings== 1)
+                    {
+                        var deleted = await _userPackageRepository.DeleteUserPackageAsync(listing.UserId.Value, listing.FeeId.Value);
+                    }
+                    else await _userPackageRepository.ConsumeListingAsync(listing.UserId.Value, listing.FeeId.Value);
                 }
 
                 // Consume one listing slot from user's package. This will decrement remaining listings.
                 if (!listing.UserId.HasValue)
                     throw new InvalidOperationException("Listing does not have an associated user to consume package from.");
 
-                var consumed = await _userPackageRepository.ConsumeListingAsync(listing.UserId.Value, listing.FeeId.Value);
-                if (!consumed)
-                {
-                    throw new InvalidOperationException("User package does not have remaining listing slots to activate this listing.");
-                }
+
             }
 
         }

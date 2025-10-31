@@ -12,8 +12,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs
 
         public Guid? ListingId { get; set; }
 
-        [Required]
-        [Range(1, 5, ErrorMessage = "Rating must be between 1 and 5.")]
+        
         public int Rating { get; set; }
 
         [StringLength(1000)]

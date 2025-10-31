@@ -9,7 +9,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.Serivces;
 public interface IUserPackageService
 {
     Task<ApiResponse<UserPackageResponse>> PurchasePackageAsync(Guid userId, PurchasePackageRequest request);
-    Task<ApiResponse<List<UserPackageResponse>>> GetUserPackagesAsync(Guid userId);
+    Task<ApiResponse<UserPackagesGroupedResponse>> GetUserPackagesAsync(Guid userId);
     Task<ApiResponse<List<UserPackageResponse>>> GetActiveUserPackagesAsync(Guid userId);
     Task<ApiResponse<UserPackageResponse>> GetUserPackageAsync(Guid userId, Guid feeId);
     Task<ApiResponse<bool>> ConsumeListingAsync(Guid userId, Guid feeId);
@@ -114,43 +114,58 @@ public class UserPackageService : IUserPackageService
         }
     }
 
-    public async Task<ApiResponse<List<UserPackageResponse>>> GetUserPackagesAsync(Guid userId)
+public async Task<ApiResponse<UserPackagesGroupedResponse>> GetUserPackagesAsync(Guid userId)
+{
+    try
     {
-        try
-        {
-            var packages = await _userPackageRepository.GetUserPackagesAsync(userId);
-            
-            var responses = packages.Select(p => new UserPackageResponse
-            {
-                UserId = p.UserId,
-                FeeId = p.FeeId,
-                RemainingListings = p.RemainingListings,
-                ActivatedAt = p.ActivatedAt,
-                ExpiredAt = p.ExpiredAt,
-                Status = p.Status,
-                Month = CalculateMonthFromDates(p.ActivatedAt, p.ExpiredAt),
-                TotalAmount = p.FeeCommission?.Amount * CalculateMonthFromDates(p.ActivatedAt, p.ExpiredAt) ?? 0,
-                FeeCommission = p.FeeCommission != null ? new FeeCommissionResponseDto
-                {
-                    FeeId = p.FeeCommission.FeeId,
-                    FeeName = p.FeeCommission.FeeName,
-                    FeeType = p.FeeCommission.FeeType,
-                    Amount = p.FeeCommission.Amount,
-                    PackageDurationDays = p.FeeCommission.PackageDurationDays,
-                    MaxListings = p.FeeCommission.MaxListings,
-                    SavingAmount = p.FeeCommission.SavingAmount,
-                    Description = p.FeeCommission.Description,
-                    CreatedAt = p.FeeCommission.CreatedAt
-                } : new FeeCommissionResponseDto()
-            }).ToList();
+        var packages = await _userPackageRepository.GetUserPackagesAsync(userId);
 
-            return ApiResponse<List<UserPackageResponse>>.SuccessResult(responses, "User packages retrieved successfully");
-        }
-        catch (Exception ex)
+        // Nếu không có gói nào, trả về một đối tượng rỗng thành công
+        if (packages == null || !packages.Any())
         {
-            return ApiResponse<List<UserPackageResponse>>.ErrorResult($"Error retrieving user packages: {ex.Message}");
+            var emptyResponse = new UserPackagesGroupedResponse { UserId = userId };
+            return ApiResponse<UserPackagesGroupedResponse>.SuccessResult(emptyResponse, "User has no packages.");
         }
+
+        // Tạo danh sách chi tiết các gói tin
+        var packageDetails = packages.Select(p => new PackageDetailResponse
+        {
+            FeeId = p.FeeId,
+            RemainingListings = p.RemainingListings,
+            ActivatedAt = p.ActivatedAt,
+            ExpiredAt = p.ExpiredAt,
+            Status = p.Status,
+            Month = CalculateMonthFromDates(p.ActivatedAt, p.ExpiredAt),
+            TotalAmount = p.FeeCommission?.Amount * CalculateMonthFromDates(p.ActivatedAt, p.ExpiredAt) ?? 0,
+            FeeCommission = p.FeeCommission != null ? new FeeCommissionResponseDto
+            {
+                FeeId = p.FeeCommission.FeeId,
+                FeeName = p.FeeCommission.FeeName,
+                FeeType = p.FeeCommission.FeeType,
+                Amount = p.FeeCommission.Amount,
+                PackageDurationDays = p.FeeCommission.PackageDurationDays,
+                MaxListings = p.FeeCommission.MaxListings,
+                SavingAmount = p.FeeCommission.SavingAmount,
+                Description = p.FeeCommission.Description,
+                CreatedAt = p.FeeCommission.CreatedAt
+            } : new FeeCommissionResponseDto()
+        }).ToList();
+
+        // Tạo đối tượng trả về cuối cùng đã được nhóm lại
+        var finalResponse = new UserPackagesGroupedResponse
+        {
+            UserId = userId,
+            Packages = packageDetails
+        };
+
+        return ApiResponse<UserPackagesGroupedResponse>.SuccessResult(finalResponse, "User packages retrieved successfully");
     }
+    catch (Exception ex)
+    {
+        // Đừng quên cập nhật kiểu dữ liệu trả về cho trường hợp lỗi
+        return ApiResponse<UserPackagesGroupedResponse>.ErrorResult($"Error retrieving user packages: {ex.Message}");
+    }
+}
 
     public async Task<ApiResponse<List<UserPackageResponse>>> GetActiveUserPackagesAsync(Guid userId)
     {

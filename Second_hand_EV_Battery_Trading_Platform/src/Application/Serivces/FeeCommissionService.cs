@@ -34,7 +34,8 @@ public class FeeCommissionService : IFeeCommissionService
             MaxListings = dto.MaxListings,
             SavingAmount = dto.SavingAmount,
             Description = dto.Description,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            Status = true // Mặc định tạo là active
         };
 
         var created = await _repo.CreateAsync(entity);
@@ -71,6 +72,7 @@ public class FeeCommissionService : IFeeCommissionService
         MaxListings = f.MaxListings,
         SavingAmount = f.SavingAmount,
         Description = f.Description,
-        CreatedAt = f.CreatedAt
+        CreatedAt = f.CreatedAt,
+        Status = f.Status
     };
 }

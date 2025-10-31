@@ -23,6 +23,9 @@ public partial class FeeCommission
 
     public DateTime? CreatedAt { get; set; }
 
+    // New boolean status field (nullable to avoid breaking existing data)
+    public bool? Status { get; set; }
+
     public virtual ICollection<Listing> Listings { get; set; } = new List<Listing>();
 
     public virtual ICollection<PaymentTransaction> PaymentTransactions { get; set; } = new List<PaymentTransaction>();

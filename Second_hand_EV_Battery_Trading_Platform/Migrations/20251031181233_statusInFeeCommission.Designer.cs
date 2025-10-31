@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Persistence;
 namespace Second_hand_EV_Battery_Trading_Platform.Migrations
 {
     [DbContext(typeof(OemEvWarrantyContext))]
-    partial class OemEvWarrantyContextModelSnapshot : ModelSnapshot
+    [Migration("20251031181233_statusInFeeCommission")]
+    partial class statusInFeeCommission
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -818,7 +821,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.Migrations
                     b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.Listing", "Listing")
                         .WithMany()
                         .HasForeignKey("ListingId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Favorite_Listing");
 
                     b.HasOne("Second_hand_EV_Battery_Trading_Platform.src.Domain.User", "User")

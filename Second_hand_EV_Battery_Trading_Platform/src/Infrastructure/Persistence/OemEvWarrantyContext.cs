@@ -137,6 +137,9 @@ public partial class OemEvWarrantyContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(true);
             entity.Property(e => e.SavingAmount).HasColumnType("decimal(18, 2)");
+
+            // Map Status boolean to SQL bit
+            entity.Property(e => e.Status).HasColumnType("bit");
         });
 
         modelBuilder.Entity<Item>(entity =>
@@ -385,7 +388,8 @@ public partial class OemEvWarrantyContext : DbContext
 
             entity.HasOne(d => d.Listing).WithMany(p => p.PaymentTransactions)
                 .HasForeignKey(d => d.ListingId)
-                .HasConstraintName("FK__PaymentTr__Listi__7C4F7684");
+                .HasConstraintName("FK__PaymentTr__Listi__7C4F7684")
+                .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasOne(d => d.User).WithMany(p => p.PaymentTransactions)
                 .HasForeignKey(d => d.UserId)
@@ -460,7 +464,8 @@ public partial class OemEvWarrantyContext : DbContext
             // Map to Listing via ListingId (match domain which uses Listing/ListingId)
             entity.HasOne(d => d.Listing).WithMany()
                 .HasForeignKey(d => d.ListingId)
-                .HasConstraintName("FK__UserReput__Listi__797309D9");
+                .HasConstraintName("FK__UserReput__Listi__797309D9")
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(d => d.Reviewee).WithMany(p => p.UserReputationReviewReviewees)
                 .HasForeignKey(d => d.RevieweeId)
@@ -510,6 +515,7 @@ public partial class OemEvWarrantyContext : DbContext
 
             entity.HasOne(d => d.Listing).WithMany()
                 .HasForeignKey(d => d.ListingId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Favorite_Listing");
 
             entity.HasIndex(e => new { e.UserId, e.ListingId }).IsUnique().HasDatabaseName("IX_Favorite_User_Listing");

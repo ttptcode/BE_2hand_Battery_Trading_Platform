@@ -32,6 +32,9 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Extensions
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IUserPackageService, UserPackageService>();
 
+            // Register background service to expire user packages
+            services.AddHostedService<UserPackageExpirationService>();
+
             return services;
         }
     }

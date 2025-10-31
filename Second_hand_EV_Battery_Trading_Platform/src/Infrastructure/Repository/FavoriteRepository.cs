@@ -13,7 +13,11 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
         {
             _context = context;
         }
-
+        public async Task<Favorite?> GetByUserAndListingAsync(Guid userId, Guid listingId)
+        {
+            return await _context.Favorites
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.ListingId == listingId);
+        }
         public async Task<Favorite> CreateAsync(Favorite favorite)
         {
             _context.Favorites.Add(favorite);

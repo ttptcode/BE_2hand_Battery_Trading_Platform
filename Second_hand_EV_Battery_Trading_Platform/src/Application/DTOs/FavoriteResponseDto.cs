@@ -5,7 +5,19 @@
         public Guid UserId { get; set; }
         public Guid ListingId { get; set; }
     }
+    public class ToggleFavoriteDto
+    {
+        public Guid UserId { get; set; }
+        public Guid ListingId { get; set; }
 
+        public ToggleFavoriteDto() { }
+
+        public ToggleFavoriteDto(Guid userId, Guid listingId)
+        {
+            UserId = userId;
+            ListingId = listingId;
+        }
+    }
     public class FavoriteResponseDto
     {
         public Guid FavoriteId { get; set; }

@@ -8,5 +8,6 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Infrastructure.Repository
         Task<IEnumerable<Favorite>> GetByUserIdAsync(Guid userId);
         Task<bool> DeleteAsync(Guid id);
         Task<Favorite?> GetByIdAsync(Guid id);
+        Task<Favorite?> GetByUserAndListingAsync(Guid userId, Guid listingId);
     }
 }

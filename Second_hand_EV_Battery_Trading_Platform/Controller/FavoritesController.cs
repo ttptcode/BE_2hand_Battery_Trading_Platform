@@ -18,21 +18,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.Controller
             _logger = logger;
         }
 
-        [HttpPost]
-        [Authorize(Roles = "User")]
-        public async Task<ActionResult<ApiResponse<FavoriteResponseDto>>> Create([FromBody] CreateFavoriteDto dto)
-        {
-            try
-            {
-                var created = await _service.CreateFavoriteAsync(dto);
-                return StatusCode(201, ApiResponse<FavoriteResponseDto>.SuccessResult(created, "Favorite added"));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error adding favorite");
-                return StatusCode(500, ApiResponse<FavoriteResponseDto>.ErrorResult("Internal server error", ex.Message));
-            }
-        }
+       
 
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<ApiResponse<IEnumerable<FavoriteResponseDto>>>> GetByUser(Guid userId)
@@ -48,24 +34,20 @@ namespace Second_hand_EV_Battery_Trading_Platform.Controller
                 return StatusCode(500, ApiResponse<IEnumerable<FavoriteResponseDto>>.ErrorResult("Internal server error", ex.Message));
             }
         }
-
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "User")]
-        public async Task<ActionResult<ApiResponse>> Delete(Guid id)
+        [HttpPost("toggle")]
+        public async Task<ActionResult<ApiResponse<FavoriteResponseDto>>> ToggleFavorite([FromBody] ToggleFavoriteDto dto)
         {
             try
             {
-                var deleted = await _service.DeleteFavoriteAsync(id);
-                if (!deleted)
-                    return NotFound(ApiResponse.ErrorResult("Favorite not found"));
-
-                return Ok(ApiResponse.SuccessResult("Favorite removed successfully"));
+                var result = await _service.ToggleFavoriteAsync(dto);
+                return Ok(ApiResponse<FavoriteResponseDto>.SuccessResult(result, "Favorite toggled"));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting favorite {FavoriteId}", id);
-                return StatusCode(500, ApiResponse.ErrorResult("Internal server error", ex.Message));
+                _logger.LogError(ex, "Error toggling favorite");
+                return StatusCode(500, ApiResponse<FavoriteResponseDto>.ErrorResult("Internal server error", ex.Message));
             }
         }
+
     }
 }

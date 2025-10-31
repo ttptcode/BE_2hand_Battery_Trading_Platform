@@ -19,6 +19,7 @@ namespace Second_hand_EV_Battery_Trading_Platform.src.Application.DTOs
         [StringLength(1000)]
         public string? Comment { get; set; }
     }
+
     public class UpdateReviewDto
     {
         public Guid? ListingId { get; set; }

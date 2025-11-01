@@ -51,4 +51,12 @@ public class PaymentTransactionRepository : IPaymentTransactionRepository
             .Where(t => t.PaymentStatus == "Pending")
             .ToListAsync();
     }
+    public async Task<IEnumerable<PaymentTransaction>> GetAllWithDetailsAsync()
+    {
+        return await _ctx.PaymentTransactions
+            .Include(t => t.User)
+            .Include(t => t.Fee)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+    }
 }

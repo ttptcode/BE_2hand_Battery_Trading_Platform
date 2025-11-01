@@ -6,4 +6,5 @@ public interface IPaymentService
 {
     Task<PaymentResponseDto> TopUpAsync(TopUpRequestDto dto);
     Task<PaymentResponseDto> PurchaseVipAsync(PurchaseVipRequestDto dto);
+    Task<IEnumerable<object>> GetAllTransactionsAsync();
 }

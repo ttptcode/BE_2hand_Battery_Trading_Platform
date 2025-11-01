@@ -10,4 +10,5 @@ public interface IPaymentTransactionRepository
     Task<PaymentTransaction?> GetByTransactionRefAsync(string transactionRef);
     Task UpdateAsync(PaymentTransaction payment);
     Task<IEnumerable<PaymentTransaction>> GetPendingPaymentsAsync();
+    Task<IEnumerable<PaymentTransaction>> GetAllWithDetailsAsync();
 }

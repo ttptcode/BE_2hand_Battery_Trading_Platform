@@ -74,4 +74,21 @@ public class PaymentsController : ControllerBase
             return StatusCode(500, ApiResponse<PaymentResponseDto>.ErrorResult("Internal error", ex.Message));
         }
     }
+    /// <summary>Get all payment transactions including User & Fee details.</summary>
+    [HttpGet("all")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<object>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IEnumerable<object>>>> GetAllTransactions()
+    {
+        try
+        {
+            var result = await _paymentService.GetAllTransactionsAsync();
+            return Ok(ApiResponse<IEnumerable<object>>.SuccessResult(result, "Fetched all transactions"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching transactions");
+            return StatusCode(500, ApiResponse<IEnumerable<object>>.ErrorResult("Internal error", ex.Message));
+        }
+    }
+
 }

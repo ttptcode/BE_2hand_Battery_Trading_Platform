@@ -133,6 +133,7 @@ public partial class OemEvWarrantyContext : DbContext
             entity.Property(e => e.FeeName)
                 .HasMaxLength(100)
                 .IsUnicode(true);
+
             entity.Property(e => e.FeeType)
                 .HasMaxLength(20)
                 .IsUnicode(true);

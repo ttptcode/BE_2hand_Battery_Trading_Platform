@@ -57,6 +57,49 @@ public class PaymentService : IPaymentService
             CreatedAt = tx.CreatedAt
         };
     }
+    public async Task<IEnumerable<object>> GetAllTransactionsAsync()
+    {
+        var transactions = await _payRepo.GetAllWithDetailsAsync();
+
+        return transactions.Select(t => new
+        {
+            t.PaymentId,
+            t.ListingId,
+            t.TransactionRef,
+            t.PaymentMethod,
+            t.PaymentStatus,           
+            t.Amount,
+            t.CreatedAt,
+            t.UpdatedAt,
+            User = t.User == null ? null : new
+            {
+                t.User.UserId,
+                t.User.FullName,
+                t.User.Email,
+                t.User.Phone,
+                t.CreatedAt,
+                t.UpdatedAt,
+                t.User.Status,
+                t.User.Balance,
+                t.User.Address,
+                
+                
+            },
+            Fee = t.Fee == null ? null : new
+            {
+                t.Fee.FeeId,
+                t.Fee.FeeName,
+                t.Fee.FeeType,
+                t.Fee.Amount,
+                t.Fee.PackageDurationDays,
+                t.Fee.MaxListings,
+                t.Fee.SavingAmount,
+                t.CreatedAt,
+              
+                t.Fee.Description
+            }
+        });
+    }
 
     public async Task<PaymentResponseDto> PurchaseVipAsync(PurchaseVipRequestDto dto)
     {

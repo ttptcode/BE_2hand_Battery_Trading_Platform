@@ -36,9 +36,9 @@ Database :
    + Password : code2lazy 
    + Trust Server Certificate : tick ( nếu không tick thì sẽ không chạy được)
    
-_ Nếu không muốn sử dụng Database Server thì sử dụng import file pacpac : [text](../db30117.bacpac)
+_ Nếu không muốn sử dụng Database Server thì sử dụng import file bacpac : db30117.bacpac
 
-_ Còn nếu không sử dụng các cách trên thì import sql này (nhưng sẽ không có sẵn các data)  : [text](../vehiclemarket.sql)
+_ Còn nếu không sử dụng các cách trên thì import sql này (nhưng sẽ không có sẵn các data)  : vehiclemarket.sql
 
 Hướng dẫn sử dụng :
 _ File Backend : BE_2hand_Battery_Trading_Platform

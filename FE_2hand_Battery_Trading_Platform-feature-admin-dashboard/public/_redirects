@@ -1,0 +1,7 @@
+# Netlify redirects
+# Payment callback - giữ nguyên query params khi redirect về index.html
+/payment-callback /index.html 200
+
+# Google OAuth callback - giữ nguyên query params
+/auth/google/callback /index.html 200
+

@@ -1,0 +1,45 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Redirects cho API routes đến Netlify Functions
+# Sử dụng :splat để pass path
+# Quan trọng: Phải đặt trước SPA routing
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# Redirects cho uploads (images, videos) đến Netlify Functions
+[[redirects]]
+  from = "/uploads/*"
+  to = "/.netlify/functions/uploads/:splat"
+  status = 200
+  force = true
+
+# Redirects cho SPA routing
+# Tất cả routes (bao gồm /payment-callback và /auth/google/callback) 
+# sẽ được redirect về index.html, React Router sẽ xử lý routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Functions configuration
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <script>
+        (function() {
+            // Get all query parameters from current URL
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Detect frontend domain từ returnUrl parameter (được pass từ frontend)
+            let frontendDomain = null;
+            
+            // Method 1: Get từ returnUrl parameter (KHÔNG CẦN SỬA BACKEND)
+            // Backend sẽ pass returnUrl từ frontend vào query string
+            const returnUrl = urlParams.get('returnUrl');
+            if (returnUrl) {
+                try {
+                    const url = new URL(returnUrl);
+                    frontendDomain = url.origin;
+                } catch(e) {
+                    console.error('Invalid returnUrl:', e);
+                }
+            }
+            
+            // Method 2: Try to get từ localStorage (nếu cùng domain - sẽ không work cross-domain)
+            // Chỉ work nếu backend và frontend cùng domain
+            if (!frontendDomain) {
+                try {
+                    const stored = localStorage.getItem('frontendDomain') || sessionStorage.getItem('frontendDomain');
+                    if (stored) {
+                        frontendDomain = stored;
+                    }
+                } catch(e) {}
+            }
+            
+            // Method 3: Detect từ referrer
+            if (!frontendDomain && document.referrer) {
+                try {
+                    const referrerUrl = new URL(document.referrer);
+                    // Nếu referrer là Netlify domain hoặc localhost
+                    if (referrerUrl.hostname.includes('netlify.app') || 
+                        referrerUrl.hostname === 'localhost' || 
+                        referrerUrl.hostname === '127.0.0.1') {
+                        frontendDomain = referrerUrl.origin;
+                    }
+                } catch(e) {}
+            }
+            
+            // Final fallback: Default domains
+            if (!frontendDomain) {
+                // Production default
+                if (window.location.protocol === 'https:') {
+                    frontendDomain = 'https://animated-manatee-c382b1.netlify.app';
+                } else {
+                    // Local dev
+                    frontendDomain = 'http://localhost:5173';
+                }
+            }
+            
+            // Build redirect URL với tất cả query parameters
+            const redirectUrl = new URL('/auth/google/callback', frontendDomain);
+            
+            // Copy tất cả query parameters (trừ returnUrl nếu có)
+            urlParams.forEach((value, key) => {
+                if (key !== 'returnUrl') {
+                    redirectUrl.searchParams.append(key, value);
+                }
+            });
+            
+            // Redirect về frontend
+            console.log('🔄 Redirecting to:', redirectUrl.toString());
+            window.location.href = redirectUrl.toString();
+        })();
+    </script>
+</head>
+<body>
+    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h2>Đang chuyển hướng...</h2>
+        <p>Vui lòng đợi trong giây lát.</p>
+    </div>
+</body>
+</html>
+
